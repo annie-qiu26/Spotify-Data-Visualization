@@ -15,9 +15,9 @@ as well.
 ## Libraries
 I'll be using openFrameworks for the interactive windowed application that
 allows users to understand their data and other music data from Spotify. To get
-this information I'm planning to use [Spotify's API] (https://developer.spotify.com/web-api/)
-and [C++ Rest SDK] (https://github.com/Microsoft/cpprestsdk) to make HTTP requests
-and get JSON data from Spotify. Then I'll use [JsonCpp] (https://github.com/open-source-parsers/jsoncpp)
+this information I'm planning to use [Spotify's API](https://developer.spotify.com/web-api/)
+and [C++ Rest SDK](https://github.com/Microsoft/cpprestsdk) to make HTTP requests
+and get JSON data from Spotify. Then I'll use [JsonCpp](https://github.com/open-source-parsers/jsoncpp)
 to parse the data and get the relevant information such as artist names, album/song names, popularity,
 and other data. Using openFrameworks, I'll output the information in proportionally
 sized colored artist "bubbles", which will basically just float around the screen
