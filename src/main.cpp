@@ -1,5 +1,6 @@
 #include <cpprest/http_client.h>
 #include <cpprest/filestream.h>
+#include "spotify_request.h"
 
 using namespace utility;                    // Common utilities like string conversions
 using namespace web;                        // Common features like URIs.
@@ -49,6 +50,12 @@ int main(int argc, char* argv[])
 	{
 		printf("Error exception:%s\n", e.what());
 	}
+
+	SpotifyRequest test;
+	utility::string_t testURI = test.request_authentication();
+	utility::string_t expectedURI = U("https://accounts");
+
+	std::wcout << testURI << std::endl;
 
 	return 0;
 }
