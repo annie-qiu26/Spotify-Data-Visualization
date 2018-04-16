@@ -56,3 +56,68 @@ vector<pair<string, double>> AudioFeatures::GetFeatures() {
 }
 
 //* these features might not have an affect in predictions
+
+// Function used to standardize data to help
+vector<pair<string, double>> AudioFeatures::StandardizeFeatures(vector<vector<pair<string, double>>> dataset) {
+        vector <pair<string, double>> means = CalculateMeans(dataset);
+        vector <pair<string, double>> stds = CalculateStds(dataset);
+        for (int i = 0; i < dataset.size(); i++) {
+                for (int j = 0; j < dataset[i].size(); j++) {
+                        dataset[i][j].second -= means[j];
+                        dataset[i][j].second /= stds[j];
+                }
+        }
+
+}
+
+// Helper function to standardize features
+vector <pair<string, double>> AudioFeatures::CalculateMeans(vector<vector<pair<string, double>>> dataset) {
+        // if dataset is empty
+        if (dataset.size() == 0) {
+                return NULL;
+        }
+        vector<pair<string, double>> means;
+        // To intialize vector with names and values from the first number in each set
+        for (int i = 0; i < dataset[0].size(); i++) {
+                means.push_back(dataset[0][i].second);
+        }
+        // Add up all the values in the dataset with respect to the feature
+        for (int i = 1; i < dataset.size(); i++) {
+                for (int j = 0; j < dataset[j].size(); j++) {
+                        means[j] += dataset[i][j].second;
+                }
+        }
+        // Divide all the sums by the number of data items
+        for (int i = 0; i < dataset.size(); i++) {
+                means[i] /= dataset.size();
+        }
+        return means;
+}
+
+// Helper function to standardize features
+vector <pair<string, double>> AudioFeatures::CalculateStds(vector<vector<pair<string, double>>> dataset) {
+        // if dataset is empty
+        if (dataset.size() == 0) {
+                return NULL;
+        }
+        vector <pair<string, double>> means = CalculateMeans(dataset);
+        vector<pair<string, double>> stds;
+        // To intialize vector with names and values from the first number in each set
+        for (int i = 0; i < dataset[0].size(); i++) {
+                stds.push_back((dataset[0][i].second - means[i]) * (dataset[0][i].second - means[i]));
+        }
+        // Add up all the differences in the dataset with respect to the feature
+        for (int i = 1; i < dataset.size(); i++) {
+                for (int j = 0; j < dataset[j].size(); j++) {
+                        stds[j] += (dataset[i][j].second - means[j]) * (dataset[i][j].second - means[j]);
+                }
+        }
+        // Divide all the sums by the number of data items minus 1, if size 1, data has no variance
+        if (dataset.size() == 1) {
+                for (int i = 0; i < dataset.size(); i++) {
+                        stds[i] /= dataset.size() - 1;
+                        stds[i] = sqrt(stds[i]);
+                }
+        }
+        return stds;
+}

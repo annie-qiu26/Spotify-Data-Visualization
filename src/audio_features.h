@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <jsoncpp/json/json.h>
+#include <cmath>
 
 using namespace std;
 
@@ -13,6 +14,7 @@ public:
 	~AudioFeatures();
 	void ParseToFeatures(Json::Value& audio);
 	vector<pair<string, double>> GetFeatures();
+	vector<pair<string, double>> StandardizeFeatures(vector<vector<pair<string, double>>>);
 private:
 	double danceability;
 	double energy;
