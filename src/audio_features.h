@@ -10,7 +10,7 @@ class AudioFeatures
 public:
 	AudioFeatures();
 	~AudioFeatures();
-	void ParseToFeatures(Json::Reader reader);
+	void ParseToFeatures(Json::Value& audio);
 	vector<pair<string, double>> GetFeatures();
 private:
 	double danceability;

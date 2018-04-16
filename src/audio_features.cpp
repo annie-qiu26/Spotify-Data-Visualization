@@ -11,7 +11,10 @@ AudioFeatures::~AudioFeatures()
 {
 }
 
-void AudioFeatures::ParseToFeatures(Json::Reader reader) {
+// Function that takes in JSON Value to assign each feature in
+// JSON Value to appropriate variable in AudioFeature object
+// Assumes JSON value is valid
+void AudioFeatures::ParseToFeatures(Json::Value& audio) {
         danceability = audio["danceability"].asDouble();
         energy = audio["energy"].asDouble();
         key = audio["key"].asInt();
@@ -36,20 +39,20 @@ void AudioFeatures::ParseToFeatures(Json::Reader reader) {
 // for analyzing data
 vector<pair<string, double>> AudioFeatures::GetFeatures() {
         vector<pair<string, double>> features;
-        features.push_back(make_pair("danceability", danceability));
-        features.push_back(make_pair("energy", energy));
-        features.push_back(make_pair("key", key)); //*
-        features.push_back(make_pair("loudness", loudness));
-        features.push_back(make_pair("mode", mode)); //*
-        features.push_back(make_pair("speechiness", speechiness));
-        features.push_back(make_pair("acousticness", acousticness));
-        features.push_back(make_pair("instrumentalness", instrumentalness));
-        features.push_back(make_pair("liveness", liveness));
-        features.push_back(make_pair("valence", valence));
-        features.push_back(make_pair("tempo", tempo));
-        features.push_back(make_pair("duration_ms", duration_ms)); //*
-        features.push_back(make_pair("time_signature", time_signature)); //*
-
+        features.push_back(make_pair("Danceability", danceability));
+        features.push_back(make_pair("Energy", energy));
+        features.push_back(make_pair("Key", key)); //*
+        features.push_back(make_pair("Loudness", loudness));
+        features.push_back(make_pair("Mode", mode)); //*
+        features.push_back(make_pair("Speechiness", speechiness));
+        features.push_back(make_pair("Acousticness", acousticness));
+        features.push_back(make_pair("Instrumentalness", instrumentalness));
+        features.push_back(make_pair("Liveness", liveness));
+        features.push_back(make_pair("Valence", valence));
+        features.push_back(make_pair("Tempo", tempo));
+        features.push_back(make_pair("Duration in Milliseconds", duration_ms)); //*
+        features.push_back(make_pair("Time Signature", time_signature)); //*
+        return features;
 }
 
 //* these features might not have an affect in predictions
