@@ -140,3 +140,15 @@ TEST_CASE("Get Features Time Signature") {
 }
 
 //Need to check for empty JSON value in another method
+
+// Tests to make sure dataset can be standardized correctly
+TEST_CASE("Calculate Means Test") {
+	vector<pair<string, double>> dataset;
+	dataset.push_back(make_pair("string", 3));
+	dataset.push_back(make_pair("string", 4));
+	dataset.push_back(make_pair("string", 5));
+
+	vector<vector<pair<string, double>>> datasets;
+	datasets.push_back(dataset);
+	REQUIRE(testAudio.CalculateMeans(datasets)[0].second == 4);
+}
