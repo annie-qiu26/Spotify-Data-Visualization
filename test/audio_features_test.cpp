@@ -144,11 +144,23 @@ TEST_CASE("Get Features Time Signature") {
 //Tests to make sure dataset can be standardized correctly
 TEST_CASE("Calculate Means Test") {
 	vector<pair<string, double>> dataset;
-	dataset.push_back(make_pair("string", 3));
-	dataset.push_back(make_pair("string", 4));
-	dataset.push_back(make_pair("string", 5));
+	vector<pair<string, double>> dataset1;
+	vector<pair<string, double>> dataset2;
+
+	for (int i = 3; i < 6; i++) {
+		dataset.push_back(make_pair("string", i));
+		dataset1.push_back(make_pair("string", i));
+		dataset2.push_back(make_pair("string", i));
+	}
 
 	vector<vector<pair<string, double>>> datasets;
 	datasets.push_back(dataset);
-	REQUIRE(testAudio.CalculateMeans(datasets)[0].second == 4);
+	datasets.push_back(dataset1);
+	datasets.push_back(dataset2);
+
+	vector<double> means = testAudio.CalculateMeans(datasets);
+
+	REQUIRE(means[0] == 3);
+	REQUIRE(means[1] == 4);
+	REQUIRE(means[2] == 5);
 }
