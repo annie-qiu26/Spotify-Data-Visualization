@@ -141,7 +141,7 @@ TEST_CASE("Get Features Time Signature") {
 
 //Need to check for empty JSON value in another method
 
-// Tests to make sure dataset can be standardized correctly
+//Tests to make sure dataset can be standardized correctly
 TEST_CASE("Calculate Means Test") {
 	vector<pair<string, double>> dataset;
 	dataset.push_back(make_pair("string", 3));

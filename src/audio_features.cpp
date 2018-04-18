@@ -58,14 +58,14 @@ vector<pair<string, double>> AudioFeatures::GetFeatures() {
 //* these features might not have an effect in predictions
 
 // Function used to standardize data to help
-vector<pair<string, double>> AudioFeatures::StandardizeFeatures(vector<vector<pair<string, double>>> dataset) {
+vector <pair<string, double>> AudioFeatures::StandardizeFeatures(vector<vector<pair<string, double>>> dataset) {
         vector <pair<string, double>> means = CalculateMeans(dataset);
         vector <pair<string, double>> stds = CalculateStds(dataset);
-        vector<vector<pair<string, double>>> standardized_dataset[dataset.size()];
+        vector <pair<string, double>> standardized_dataset[dataset.size()];
         for (unsigned int i = 0; i < dataset.size(); i++) {
                 for (unsigned int j = 0; j < dataset[i].size(); j++) {
                         standardized_dataset[i].push_back(make_pair(dataset[i][j].first,
-                                (dataset[i][j].second - means[j]) / stds[j]);
+                                (dataset[i][j].second - means[j].second) / stds[j].second));
                 }
         }
         return standardized_dataset;
@@ -74,51 +74,52 @@ vector<pair<string, double>> AudioFeatures::StandardizeFeatures(vector<vector<pa
 
 // Helper function to standardize features
 vector <pair<string, double>> AudioFeatures::CalculateMeans(vector<vector<pair<string, double>>> dataset) {
+        vector<pair<string, double>> means;
         // if dataset is empty
         if (dataset.size() == 0) {
-                return NULL;
+                return means;
         }
-        vector<pair<string, double>> means;
         // To intialize vector with names and values from the first number in each set
         for (unsigned int i = 0; i < dataset[0].size(); i++) {
-                means.push_back(dataset[0][i].second);
+                means.push_back(make_pair(dataset[0][i].first, dataset[0][i].second));
         }
         // Add up all the values in the dataset with respect to the feature
         for (unsigned int i = 1; i < dataset.size(); i++) {
                 for (unsigned int j = 0; j < dataset[j].size(); j++) {
-                        means[j] += dataset[i][j].second;
+                        means[j] = make_pair(means[j].first, means[j].second + dataset[i][j].second);
                 }
         }
         // Divide all the sums by the number of data items
         for (unsigned int i = 0; i < dataset.size(); i++) {
-                means[i] /= dataset.size();
+                means[i] = make_pair(means[i].first, means[i].second / dataset[i].size());
         }
         return means;
 }
 
 // Helper function to standardize features
 vector <pair<string, double>> AudioFeatures::CalculateStds(vector<vector<pair<string, double>>> dataset) {
+        vector<pair<string, double>> stds;
         // if dataset is empty
         if (dataset.size() == 0) {
-                return NULL;
+                return stds;
         }
         vector <pair<string, double>> means = CalculateMeans(dataset);
-        vector<pair<string, double>> stds;
         // To intialize vector with names and values from the first number in each set
         for (unsigned int i = 0; i < dataset[0].size(); i++) {
-                stds.push_back((dataset[0][i].second - means[i]) * (dataset[0][i].second - means[i]));
+                stds.push_back(make_pair(dataset[0][0].first,
+                        (dataset[0][i].second - means[i].second) * (dataset[0][i].second - means[i].second)));
         }
         // Add up all the differences in the dataset with respect to the feature
         for (unsigned int i = 1; i < dataset.size(); i++) {
-                for (int j = 0; j < dataset[j].size(); j++) {
-                        stds[j] += (dataset[i][j].second - means[j]) * (dataset[i][j].second - means[j]);
+                for (unsigned int j = 0; j < dataset[j].size(); j++) {
+                        stds[j] = make_pair(stds[j].first, stds[j].second
+                                 + (dataset[i][j].second - means[j].second) * (dataset[i][j].second - means[j].second));
                 }
         }
         // Divide all the sums by the number of data items minus 1, if size 1, data has no variance
         if (dataset.size() == 1) {
-                for (int i = 0; i < dataset.size(); i++) {
-                        stds[i] /= dataset.size() - 1;
-                        stds[i] = sqrt(stds[i]);
+                for (unsigned int i = 0; i < dataset.size(); i++) {
+                        stds[i] = make_pair(stds[i].first, sqrt(stds[i].second / (dataset.size() - 1)));
                 }
         }
         return stds;
