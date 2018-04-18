@@ -9,3 +9,9 @@ openFrameworks. I've been using [Spotify's API's](https://developer.spotify.com/
 web console to get JSON data that I can parse. While I'm still trying to figure
 out how to make HTTP requests in C++, my next goal is to aggregate all the data
 from the sample JSON files that I temporarily added to the repository.
+
+## Standardizing data : 04/18/18
+I've been working on functions that will help me standardize the data to have a
+mean of 0 and standard deviation of 0, but some of the functions weren't working
+properly. I still need to create more tests for these functions and understand
+what's happening with my standardized data function for it to compile.
