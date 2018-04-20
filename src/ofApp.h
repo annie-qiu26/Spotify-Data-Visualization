@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxDatGui.h"
+#include "ofxGrafica.h"
 
 class ofApp : public ofBaseApp{
 
@@ -25,7 +26,11 @@ private:
 	// From examples
 	ofxDatGuiTextInput * input;
 	void onTextInputEvent(ofxDatGuiTextInputEvent e);
-
 	ofTrueTypeFont font;
+
+	ofColor pointColor;
+	bool drawLines;
+	int circleResolution;
+	ofxGPlot plot;
 		
 };
