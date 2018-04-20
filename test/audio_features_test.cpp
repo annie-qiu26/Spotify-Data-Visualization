@@ -3,6 +3,9 @@
 #include <fstream>
 #include "../src/audio_features.h"
 
+//For debugging
+#include <iostream>
+
 using namespace std;
 
 ifstream infile("../data/audio_features.json");
@@ -163,4 +166,111 @@ TEST_CASE("Calculate Means Test") {
 	REQUIRE(means[0] == 3);
 	REQUIRE(means[1] == 4);
 	REQUIRE(means[2] == 5);
+}
+
+TEST_CASE("Calculate Means Empty Test") {
+	vector<vector<pair<string, double>>> datasets;
+	vector<double> means = testAudio.CalculateMeans(datasets);
+	REQUIRE(means.size() == 0);
+}
+
+TEST_CASE("Calculate Means Double Test") {
+	vector<pair<string, double>> dataset;
+	vector<pair<string, double>> dataset1;
+
+	for (int i = 0; i < 3; i++) {
+		dataset.push_back(make_pair("string", 3));
+		dataset1.push_back(make_pair("string", 4));
+	}
+
+	vector<vector<pair<string, double>>> datasets;
+	datasets.push_back(dataset);
+	datasets.push_back(dataset1);
+
+	vector<double> means = testAudio.CalculateMeans(datasets);
+
+	REQUIRE(means[0] == Approx(3.5));
+	REQUIRE(means[1] == Approx(3.5));
+}
+
+
+TEST_CASE("Calculate Stds Test") {
+	vector<pair<string, double>> dataset;
+	vector<pair<string, double>> dataset1;
+	vector<pair<string, double>> dataset2;
+
+	for (int i = 3; i < 6; i++) {
+		dataset.push_back(make_pair("string", i));
+		dataset1.push_back(make_pair("string", i));
+		dataset2.push_back(make_pair("string", i));
+	}
+
+	vector<vector<pair<string, double>>> datasets;
+	datasets.push_back(dataset);
+	datasets.push_back(dataset1);
+	datasets.push_back(dataset2);
+
+	vector<double> stds = testAudio.CalculateStds(datasets);
+
+	REQUIRE(stds[0] == 0);
+	REQUIRE(stds[1] == 0);
+	REQUIRE(stds[2] == 0);
+}
+
+TEST_CASE("Calculate Stds Empty Test") {
+	vector<vector<pair<string, double>>> datasets;
+	vector<double> stds = testAudio.CalculateMeans(datasets);
+	REQUIRE(stds.size() == 0);
+}
+
+TEST_CASE("Calculate Stds Double Test") {
+	vector<pair<string, double>> dataset;
+	vector<pair<string, double>> dataset1;
+
+	for (int i = 0; i < 3; i++) {
+		dataset.push_back(make_pair("string", 3));
+		dataset1.push_back(make_pair("string", 4));
+	}
+
+	vector<vector<pair<string, double>>> datasets;
+	datasets.push_back(dataset);
+	datasets.push_back(dataset1);
+
+	vector<double> stds = testAudio.CalculateStds(datasets);
+
+	REQUIRE(stds[0] == Approx(0.5));
+	REQUIRE(stds[1] == Approx(0.5));
+
+}
+
+TEST_CASE("Standardize Data Test") {
+	vector<pair<string, double>> dataset;
+	vector<pair<string, double>> dataset1;
+
+	for (int i = 0; i < 3; i++) {
+		dataset.push_back(make_pair("string", 3));
+		dataset1.push_back(make_pair("string", 4));
+	}
+
+	vector<vector<pair<string, double>>> datasets;
+	datasets.push_back(dataset);
+	datasets.push_back(dataset1);
+
+	vector <vector<pair<string, double>>> standardized_dataset
+	= testAudio.StandardizeFeatures(datasets);
+
+	REQUIRE(standardized_dataset[0][0].second == Approx(-1));
+	REQUIRE(standardized_dataset[0][1].second == Approx(-1));
+	REQUIRE(standardized_dataset[0][2].second == Approx(-1));
+	REQUIRE(standardized_dataset[1][0].second == Approx(1));
+	REQUIRE(standardized_dataset[1][1].second == Approx(1));
+	REQUIRE(standardized_dataset[1][2].second == Approx(1));
+
+}
+
+TEST_CASE("Standardize Data Empty Test") {
+	vector<vector<pair<string, double>>> datasets;
+	vector <vector<pair<string, double>>> standardized_dataset
+	= testAudio.StandardizeFeatures(datasets);
+	REQUIRE(standardized_dataset.size() == 0);
 }

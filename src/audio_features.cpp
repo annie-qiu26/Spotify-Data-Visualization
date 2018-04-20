@@ -82,21 +82,23 @@ vector <double> AudioFeatures::CalculateMeans(vector<vector<pair<string, double>
         if (dataset.size() == 0) {
                 return means;
         }
+
         // To intialize vector with names and values from the first number in each set
         for (unsigned int i = 0; i < dataset[0].size(); i++) {
                 means.push_back(dataset[0][i].second);
         }
 
+
         // Add up all the values in the dataset with respect to the feature
         for (unsigned int i = 1; i < dataset.size(); i++) {
-                for (unsigned int j = 0; j < dataset[j].size(); j++) {
+                for (unsigned int j = 0; j < dataset[i].size(); j++) {
                         means[j] += dataset[i][j].second;
                 }
         }
 
         // Divide all the sums by the number of data items
-        for (unsigned int i = 0; i < dataset.size(); i++) {
-                means[i] /= dataset[i].size();
+        for (unsigned int i = 0; i < dataset[0].size(); i++) {
+                means[i] /= dataset.size();
         }
 
         return means;
@@ -109,7 +111,9 @@ vector <double> AudioFeatures::CalculateStds(vector<vector<pair<string, double>>
         if (dataset.size() == 0) {
                 return stds;
         }
+
         vector <double> means = CalculateMeans(dataset);
+
         // To intialize vector with names and values from the first number in each set
         for (unsigned int i = 0; i < dataset[0].size(); i++) {
                 stds.push_back((dataset[0][i].second - means[i]) * (dataset[0][i].second - means[i]));
