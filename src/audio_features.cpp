@@ -60,18 +60,18 @@ vector<pair<string, double>> AudioFeatures::GetFeatures() {
 //* these features might not have an effect in predictions
 
 // Function used to standardize data to help with plotting
-vector <pair<string, double>> AudioFeatures::StandardizeFeatures(vector<vector<pair<string, double>>> dataset) {
+vector <vector<pair<string, double>>> AudioFeatures::StandardizeFeatures(vector<vector<pair<string, double>>> dataset) {
         vector <double> means = CalculateMeans(dataset);
         vector <double> stds = CalculateStds(dataset);
-        vector <pair<string, double>> standardized_dataset[dataset.size()];
+        vector <vector <pair<string, double>>> standardized_dataset(dataset.size());
         for (unsigned int i = 0; i < dataset.size(); i++) {
                 for (unsigned int j = 0; j < dataset[i].size(); j++) {
                         standardized_dataset[i].push_back(make_pair(dataset[i][j].first,
                                 (dataset[i][j].second - means[j]) / stds[j]));
                 }
         }
-        // wait standardized_dataset isn't a pointer?
-        return *standardized_dataset;
+
+        return standardized_dataset;
 
 }
 
