@@ -1,4 +1,7 @@
 #include "top_tracks.h"
+#include "audio_features.h"
+//For debugging
+#include <iostream>
 
 using namespace std;
 
@@ -46,4 +49,16 @@ vector<string> TopTracks::ParseToIDsPlaylist(string json_data) {
                 ids.push_back(items[i]["track"]["id"].asString());
         }
         return ids;
+}
+
+// Function that takes in JSON data and returns a vector of
+// vector filled with audio features of all the tracks
+vector<vector<pair<string, double>>> TopTracks::GetDataset(Json::Value& audio, int size) {
+        vector<vector<pair<string, double>>> dataset;
+        for (int i = 0; i < size; i++) {
+                AudioFeatures track;
+                track.ParseToFeatures(audio[i]);
+                dataset.push_back(track.GetFeatures());
+        }
+        return dataset;
 }

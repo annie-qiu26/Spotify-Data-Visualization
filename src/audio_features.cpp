@@ -37,13 +37,6 @@ void AudioFeatures::ParseToFeatures(Json::Value& audio) {
         time_signature = audio["time_signature"].asInt();
 }
 
-// Function that takes in JSON data and returns a vector of
-// vector filled with audio features of all the tracks
-vector<vector<pair<string, double>>> AudioFeatures::ParsePlaylistTracksFeatures(Json::Value& audio) {
-        vector<vector<pair<string, double>>> dataset
-        return dataset;
-}
-
 // Only brings in numeric features to a list that will be used
 // for analyzing data
 vector<pair<string, double>> AudioFeatures::GetFeatures() {

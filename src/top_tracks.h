@@ -12,4 +12,5 @@ public:
         ~TopTracks();
         vector<string> ParseToIDs(string json_data);
         vector<string> ParseToIDsPlaylist(string json_data);
+        vector<vector<pair<string, double>>> GetDataset(Json::Value& audio, int size);
 };
