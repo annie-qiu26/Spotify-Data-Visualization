@@ -14,9 +14,6 @@ public:
 	~AudioFeatures();
 	void ParseToFeatures(Json::Value& audio);
 	vector <pair<string, double>> GetFeatures();
-	vector <vector<pair<string, double>>> StandardizeFeatures(vector<vector<pair<string, double>>>);
-	vector <double> CalculateMeans(vector<vector<pair<string, double>>> dataset);
-	vector <double> CalculateStds(vector<vector<pair<string, double>>> dataset);
 private:
 	double danceability;
 	double energy;
