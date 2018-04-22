@@ -5,7 +5,16 @@ void ofApp::setup(){
 	ofColor black(0, 0, 0);
 	ofSetWindowTitle("Spotify Visualization");
 	ofBackground(black);
-	
+
+	// Setting up data to used
+	ifstream infile3("../data/disliked_songs_features.json");
+	Json::Reader reader;
+	Json::Value audio;
+	reader.parse(infile3, audio);
+	TopTracks tracks_obj;;
+	vector<vector<pair<string, double>>> dataset = tracks_obj.GetDataset(audio["audio_features"], 100);
+	vector<vector<pair<string, double>>> standardized_dataset = tracks_obj.StandardizeFeatures(dataset);
+
 	//From example
 //	ofSetWindowShape(1920, 1080);
 //	ofSetWindowPosition(ofGetScreenWidth() / 2 - ofGetWidth() / 2, 0);
@@ -18,42 +27,43 @@ void ofApp::setup(){
 	input->setPosition(ofGetWidth() / 2 - input->getWidth() / 2, 240);
 	font.load("ofxbraitsch/fonts/Verdana.ttf", 24);
 
-// Code from ofxGrafica Example, just for reference
+// Reference from ofxGrafica Histogram Example
+	vector<ofxGPoint> histogram_points = calculateHistograms(standardized_dataset);
 
-	// Initialize the global variables
-	pointColor = ofColor(255, 0, 0, 155);
-	drawLines = true;
-	circleResolution = 22;
-
-	// Set the circle resolution
-	ofSetCircleResolution(circleResolution);
-
-	// Set the plot position and dimentions
 	plot.setPos(0, 0);
-	plot.setOuterDim(ofGetWidth(), ofGetHeight());
+	plot.setDim(300, 200);
+	plot.setXLim(0, 2);
+	plot.setTitleText("Test Histogram");
+	plot.getYAxis().getAxisLabel().setText("N");
+	plot.getYAxis().getAxisLabel().setRotate(false);
+	plot.setPoints(histogram_points);
+	plot.startHistograms(GRAFICA_VERTICAL_HISTOGRAM);
+	plot.getHistogram().setBgColors({ ofColor(255, 0, 0, 100) });
+	plot.getHistogram().setLineColors({ ofColor(0, 0) });
+	plot.getHistogram().setSeparations({ 0 });
+	plot.activateZooming(1.2, OF_MOUSE_BUTTON_LEFT, OF_MOUSE_BUTTON_LEFT);
+	plot.activateReset();
 
-	// Set the title text relative position and alignment
-	plot.getTitle().setRelativePos(0.4);
-	plot.getTitle().setTextAlignment(GRAFICA_LEFT_ALIGN);
 
-	// Set the axis labels
-	plot.getXAxis().setAxisLabelText("x axis");
-	plot.getYAxis().setAxisLabelText("y axis");
+}
 
-	// Prepare the points for the plot
-	int nPoints = 10000;
-	vector<ofxGPoint> points;
+vector<ofxGPoint> ofApp::calculateHistograms(vector<vector<pair<string, double>>> dataset) {
+	double bin_size = 0.05;
+	int range = 2;
+	int num_bins = (int) (range / bin_size);
+	vector<ofxGPoint> histogram_points;
+	vector<double> count_in_bins(num_bins, 0);
 
-	for (int i = 0; i < nPoints; ++i) {
-		points.emplace_back(ofRandom(100), ofRandom(100));
+	for (int j = 0; j < dataset.size(); j++) {
+		// do not consider outliers, temporarily
+		if (dataset[j][0].second < 1 && dataset[j][0].second >= -1) {
+			count_in_bins[(int) ((dataset[j][0].second + 1) / bin_size) ]++;
+		}
 	}
-
-	// Add the points
-	plot.setPoints(points);
-
-	// Activate panning and zooming
-	plot.activatePanning();
-	plot.activateZooming(1.1, OF_MOUSE_BUTTON_LEFT, OF_MOUSE_BUTTON_LEFT);
+	for (int i = 0; i < num_bins; i++) {
+		histogram_points.emplace_back((i + 0.5) * bin_size, count_in_bins[i]);
+	}
+	return histogram_points;
 }
 
 void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
@@ -66,7 +76,6 @@ void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 
 //--------------------------------------------------------------
 void ofApp::update(){
-	plot.getTitle().setText("Frame rate: " + to_string(ofGetFrameRate()));
 	input->update();
 }
 
@@ -78,34 +87,20 @@ void ofApp::draw(){
 	ofSetColor(ofColor::black);
 	font.drawString(str, bounds.x - bounds.width / 2, bounds.y - bounds.height / 2);
 
+	// Reference from ofxGrafica
 	plot.beginDraw();
 	plot.drawBox();
+	plot.drawTitle();
 	plot.drawXAxis();
 	plot.drawYAxis();
-	plot.drawTitle();
-
-	if (drawLines) {
-		plot.drawLines();
-	}
-
-	plot.drawPoints(pointColor); // this is 3 times faster than drawPoints()
-	plot.drawLabels();
+	plot.drawGridLines(GRAFICA_VERTICAL_DIRECTION);
+	plot.drawHistograms();
 	plot.endDraw();
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-	if (key == 'l') {
-		drawLines = !drawLines;
-	}
-	else if (key == '+') {
-		circleResolution = ofClamp(++circleResolution, 3, 50);
-		ofSetCircleResolution(circleResolution);
-	}
-	else if (key == '-') {
-		circleResolution = ofClamp(--circleResolution, 3, 50);
-		ofSetCircleResolution(circleResolution);
-	}
+
 }
 
 //--------------------------------------------------------------
@@ -154,6 +149,6 @@ void ofApp::gotMessage(ofMessage msg){
 }
 
 //--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
+void ofApp::dragEvent(ofDragInfo dragInfo){
 
 }

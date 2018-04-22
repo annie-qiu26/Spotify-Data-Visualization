@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "ofxDatGui.h"
 #include "ofxGrafica.h"
+#include "top_tracks.h"
 
 class ofApp : public ofBaseApp{
 
@@ -22,6 +23,8 @@ public:
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
+
+		vector<ofxGPoint> calculateHistograms(vector<vector<pair<string, double>>> dataset);
 private:
 	// From examples
 	ofxDatGuiTextInput * input;
@@ -32,5 +35,5 @@ private:
 	bool drawLines;
 	int circleResolution;
 	ofxGPlot plot;
-		
+
 };

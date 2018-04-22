@@ -210,3 +210,14 @@ TEST_CASE("Standardize Data Empty Test") {
 	= test.StandardizeFeatures(datasets);
 	REQUIRE(standardized_dataset.size() == 0);
 }
+
+//Just for reference purposes
+TEST_CASE("Get Standardized Dataset") {
+        vector <vector<pair<string, double>>> standardized_dataset
+	= test.StandardizeFeatures(dataset);
+        for (int i = 0; i < standardized_dataset.size(); i++) {
+                for (int j = 0; j < standardized_dataset[i].size(); j++) {
+                        cout << standardized_dataset[i][j].second << endl;
+                }
+        }
+}
