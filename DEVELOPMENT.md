@@ -10,8 +10,16 @@ web console to get JSON data that I can parse. While I'm still trying to figure
 out how to make HTTP requests in C++, my next goal is to aggregate all the data
 from the sample JSON files that I temporarily added to the repository.
 
-## Standardizing data : 04/18/18
+## Standardizing Data : 04/18/18
 I've been working on functions that will help me standardize the data to have a
 mean of 0 and standard deviation of 0, but some of the functions weren't working
 properly. I still need to create more tests for these functions and understand
 what's happening with my standardized data function for it to compile.
+
+## OpenFrameworks Addons, Visualizing Data : 04/21/18
+I added tests for standardizing data and fixed some bugs in those functions. I also
+temporarily got data from Spotfiy's web console and parsed the JSON data to get
+id and audio features of tracks from my Liked and Disliked Playlist. Then I played
+around with two addons for openFrameworks ([ofxDatGui](https://braitsch.github.io/ofxDatGui/)
+and [ofxGrafica](https://github.com/jagracar/ofxGrafica)]. I plotted my data
+with a histogram and added a textfield to get user input. 
