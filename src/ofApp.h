@@ -24,7 +24,7 @@ public:
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
-		vector<ofxGPoint> calculateHistograms(vector<vector<pair<string, double>>> dataset);
+		vector<vector<ofxGPoint>> calculateHistograms(vector<vector<pair<string, double>>> dataset);
 private:
 	// From examples
 	ofxDatGuiTextInput * input;
