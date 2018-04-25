@@ -24,19 +24,26 @@ public:
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
-		vector<vector<ofxGPoint>> calculateHistograms(vector<vector<pair<string, double>>> dataset);
+		void setupPlot();
+		vector<vector<ofxGPoint>> calculateHistograms(vector<vector<pair<string, double>>> dataset,
+			int start_limit, int end_limit);
 		void histogramUpdate();
+		vector<string> setupTitles(vector<vector<pair<string, double>>> dataset);
 private:
 	// From examples
-	ofxDatGuiTextInput * input;
+	ofxDatGuiTextInput * input_;
 	void onTextInputEvent(ofxDatGuiTextInputEvent e);
-	ofTrueTypeFont font;
+	ofTrueTypeFont font_;
 
-	ofColor pointColor;
-	bool drawLines;
-	int circleResolution;
-	ofxGPlot plot;
-	vector<vector<ofxGPoint>> histogram_points_;
+	// Wait do I need these?
+	ofColor point_color_;
+	bool draw_lines_;
+	int circle_resolution_;
+
+	ofxGPlot plot_;
+	vector<vector<ofxGPoint>> histogram_points_l;
+	vector<vector<ofxGPoint>> histogram_points_d;
+	vector<string> histogram_titles_;
 
 	int current_index_ = 0;
 	int feature_size_;
