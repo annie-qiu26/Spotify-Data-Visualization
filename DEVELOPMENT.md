@@ -23,3 +23,10 @@ id and audio features of tracks from my Liked and Disliked Playlist. Then I play
 around with two addons for openFrameworks ([ofxDatGui](https://braitsch.github.io/ofxDatGui/)
 and [ofxGrafica](https://github.com/jagracar/ofxGrafica)]. I plotted my data
 with a histogram and added a textfield to get user input. 
+
+## Creating Histograms, Standard Deviation Issue : 04/24/18
+Right now, I'm working on creating histograms with my sample datasets of my liked and
+disliked songs. I added overlapping layers to show the differenes between the two sets.
+I realized that my standard deviation has overflow problems, so I need to fix that. I'll
+probably continue working on the histograms for the next couple days to make it look 
+nice on the openFrameworks application.

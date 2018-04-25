@@ -17,14 +17,23 @@ void ofApp::setup(){
 	TopTracks tracks_obj;
 	vector<vector<pair<string, double>>> liked_dataset 
 		= tracks_obj.GetDataset(audio["audio_features"], 100);
+
 	reader.parse(infile1, audio);
 	vector<vector<pair<string, double>>> disliked_dataset 
 		= tracks_obj.GetDataset(audio["audio_features"], 100);
+
+	// take any sample for the dataset to set the size
+	feature_size_ = liked_dataset[0].size();
 	
 	vector<vector<pair<string, double>>> combined_dataset = liked_dataset;
 	combined_dataset.insert(combined_dataset.end(), disliked_dataset.begin(), 
 		disliked_dataset.end());
 
+
+	vector<double> means = tracks_obj.CalculateMeans(combined_dataset);
+	cout << "Mean: " << means[11] << endl;
+	vector<double> stds = tracks_obj.CalculateStds(combined_dataset);
+	cout << "Std: " << stds[11] << endl;
 	vector<vector<pair<string, double>>> standardized_dataset 
 		= tracks_obj.StandardizeFeatures(combined_dataset);
 
@@ -43,17 +52,21 @@ void ofApp::setup(){
 // Reference from ofxGrafica Histogram Example
 	int start_limit = 0;
 	int end_limit = 100;
-	histogram_points_l = calculateHistograms(liked_dataset, start_limit, end_limit);
+	histogram_points_l = calculateHistograms(standardized_dataset, start_limit, end_limit,
+		means, stds);
 	start_limit = 100;
 	end_limit = standardized_dataset.size();
-	histogram_points_d = calculateHistograms(disliked_dataset, start_limit, end_limit);
+	histogram_points_d = calculateHistograms(standardized_dataset, start_limit, end_limit,
+		means, stds);
 	histogram_titles_ = setupTitles(standardized_dataset);
+
+	setupPlot();
 }
 
 void ofApp::setupPlot() {
-	plot_.setPos(0, 15);
+	plot_.setPos(0, 25);
 	plot_.setDim(900, 500);
-	//plot_.setXLim(-0.5, 0.5);
+	plot_.setXLim(-4, 4);
 	plot_.setTitleText(histogram_titles_[current_index_]);
 	plot_.getTitle().setFontSize(24);
 	plot_.getYAxis().getAxisLabel().setText("N");
@@ -67,7 +80,7 @@ void ofApp::setupPlot() {
 	plot_.startHistograms(GRAFICA_VERTICAL_HISTOGRAM);
 	plot_.getLayer("Disliked Data").getHistogram().setBgColors({ ofColor(255, 0, 0, 50) });
 	plot_.getLayer("Disliked Data").getHistogram().setLineColors({ ofColor(0, 0) });
-	plot_.getHistogram().setBgColors({ ofColor(0, 255, 0, 100) });
+	plot_.getHistogram().setBgColors({ ofColor(0, 255, 0, 50) });
 	plot_.getHistogram().setLineColors({ ofColor(0, 0) });
 	plot_.getHistogram().setSeparations({ 0 });
 	plot_.getHistogram().setFontColor({ ofColor(255, 255, 255, 100) });
@@ -87,11 +100,13 @@ vector<string> ofApp::setupTitles(vector<vector<pair<string, double>>> dataset) 
 }
 
 vector<vector<ofxGPoint>> ofApp::calculateHistograms(vector<vector<pair<string, double>>> dataset,
-	int start_limit, int end_limit) {
-	feature_size_ = dataset[0].size();
-	double bin_size = 0.03;
-	int range = 2;
-	int num_bins = (int) (range / bin_size);
+	int start_limit, int end_limit, vector<double> means, vector<double> stds) {
+
+	double bin_size = 0.3;
+	// consider 99.7 % of the data, 3 std deviation away
+	int range = 6;
+	int num_bins = (int)(range / bin_size);
+
 	// dataset[0].size == number of features
 	vector<vector<ofxGPoint>> histogram_points(dataset[0].size());
 
@@ -99,12 +114,14 @@ vector<vector<ofxGPoint>> ofApp::calculateHistograms(vector<vector<pair<string, 
 		vector<double> count_in_bins(num_bins, 0);
 		for (int sample = start_limit; sample < end_limit; sample++) {
 			// do not consider outliers, temporarily
-			//if (dataset[sample][feature].second < 1 && dataset[sample][feature].second >= -1) {
-				count_in_bins[(int)((dataset[sample][feature].second + 1) / bin_size)]++;
-			//}
+			int binIndex = (int)((dataset[sample][feature].second + 3) / bin_size);
+			if (binIndex < num_bins && binIndex >= 0) {
+				count_in_bins[binIndex]++;
+			}
 		}
 		for (int i = 0; i < num_bins; i++) {
-			histogram_points[feature].emplace_back((i + 0.5) * bin_size - 1, count_in_bins[i]);
+			histogram_points[feature].emplace_back((i + 0.5) * bin_size - 3 /* * stds[feature]
+				+ means[feature] */, count_in_bins[i]);
 		}
 	}
 	return histogram_points;
@@ -126,7 +143,7 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 	input_->draw();
-	string str = "Text Input: " + input_->getText();
+	string str = "Search: " + input_->getText();
 	ofRectangle bounds = font_.getStringBoundingBox(str, ofGetWidth() / 2, 4 * ofGetHeight() / 5);
 	ofSetColor(ofColor::black);
 	font_.drawString(str, bounds.x - bounds.width / 2, bounds.y - bounds.height / 2);

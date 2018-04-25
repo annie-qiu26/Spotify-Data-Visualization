@@ -110,32 +110,31 @@ vector <double> TopTracks::CalculateMeans(vector<vector<pair<string, double>>> d
 
 // Helper function to standardize features
 vector <double> TopTracks::CalculateStds(vector<vector<pair<string, double>>> dataset) {
-        vector<double> stds;
-        // if dataset is empty
-        if (dataset.size() == 0) {
-                return stds;
-        }
+	vector<double> stds;
+	// if dataset is empty
+	if (dataset.size() == 0) {
+		return stds;
+	}
 
-        vector <double> means = CalculateMeans(dataset);
+	vector <double> means = CalculateMeans(dataset);
 
-        // To intialize vector with names and values from the first number in each set
-        for (unsigned int i = 0; i < dataset[0].size(); i++) {
-                stds.push_back((dataset[0][i].second - means[i]) * (dataset[0][i].second - means[i]));
-        }
+	// To intialize vector with names and values from the first number in each set
+	for (unsigned int i = 0; i < dataset[0].size(); i++) {
+		stds.push_back((dataset[0][i].second - means[i]) * (dataset[0][i].second - means[i]));
+	}
 
+	// Add up all the differences in the dataset with respect to the feature
+	for (unsigned int i = 1; i < dataset.size(); i++) {
+		for (unsigned int j = 0; j < dataset[i].size(); j++) {
+			stds[j] += (dataset[i][j].second - means[j]) * (dataset[i][j].second - means[j]);
+		}
+	}
 
-        // Add up all the differences in the dataset with respect to the feature
-        for (unsigned int i = 1; i < dataset.size(); i++) {
-                for (unsigned int j = 0; j < dataset[i].size(); j++) {
-                        stds[j] +=(dataset[i][j].second - means[j]) * (dataset[i][j].second - means[j]);
-                }
-        }
-
-        // Divide all the sums by the number of data items minus 1, if size 1, data has no variance
-        if (dataset.size() == 1) {
-                for (unsigned int i = 0; i < dataset.size(); i++) {
-                        stds[i] = sqrt(stds[i] / (dataset.size() - 1));
-                }
-        }
-        return stds;
+	// Divide all the sums by the number of data items minus 1, if size 1, data has no variance
+	if (dataset.size() > 1) {
+		for (unsigned int i = 0; i < dataset[0].size(); i++) {
+			stds[i] = sqrt(stds[i] / (dataset.size() - 1));
+		}
+	}
+	return stds;
 }

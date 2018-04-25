@@ -174,8 +174,9 @@ TEST_CASE("Calculate Stds Double Test") {
 
 	vector<double> stds = test.CalculateStds(datasets);
 
-	REQUIRE(stds[0] == Approx(0.5));
-	REQUIRE(stds[1] == Approx(0.5));
+	REQUIRE(stds[0] == Approx(0.7071));
+	REQUIRE(stds[1] == Approx(0.7071));
+	REQUIRE(stds[2] == Approx(0.7071));
 
 }
 
@@ -195,12 +196,12 @@ TEST_CASE("Standardize Data Test") {
 	vector <vector<pair<string, double>>> standardized_dataset
 	= test.StandardizeFeatures(datasets);
 
-	REQUIRE(standardized_dataset[0][0].second == Approx(-1));
-	REQUIRE(standardized_dataset[0][1].second == Approx(-1));
-	REQUIRE(standardized_dataset[0][2].second == Approx(-1));
-	REQUIRE(standardized_dataset[1][0].second == Approx(1));
-	REQUIRE(standardized_dataset[1][1].second == Approx(1));
-	REQUIRE(standardized_dataset[1][2].second == Approx(1));
+	REQUIRE(standardized_dataset[0][0].second == Approx(-0.7071));
+	REQUIRE(standardized_dataset[0][1].second == Approx(-0.7071));
+	REQUIRE(standardized_dataset[0][2].second == Approx(-0.7071));
+	REQUIRE(standardized_dataset[1][0].second == Approx(0.7071));
+	REQUIRE(standardized_dataset[1][1].second == Approx(0.7071));
+	REQUIRE(standardized_dataset[1][2].second == Approx(0.7071));
 
 }
 
@@ -215,8 +216,8 @@ TEST_CASE("Standardize Data Empty Test") {
 TEST_CASE("Get Standardized Dataset") {
         vector <vector<pair<string, double>>> standardized_dataset
 	= test.StandardizeFeatures(dataset);
-        for (int i = 0; i < standardized_dataset.size(); i++) {
-                for (int j = 0; j < standardized_dataset[i].size(); j++) {
+        for (unsigned int i = 0; i < standardized_dataset.size(); i++) {
+                for (unsigned int j = 0; j < standardized_dataset[i].size(); j++) {
                         cout << standardized_dataset[i][j].second << endl;
                 }
         }

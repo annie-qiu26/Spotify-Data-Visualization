@@ -26,7 +26,7 @@ public:
 
 		void setupPlot();
 		vector<vector<ofxGPoint>> calculateHistograms(vector<vector<pair<string, double>>> dataset,
-			int start_limit, int end_limit);
+			int start_limit, int end_limit, vector<double> means, vector<double> stds);
 		void histogramUpdate();
 		vector<string> setupTitles(vector<vector<pair<string, double>>> dataset);
 private:
