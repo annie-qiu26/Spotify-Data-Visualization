@@ -25,6 +25,7 @@ public:
 		void gotMessage(ofMessage msg);
 
 		vector<vector<ofxGPoint>> calculateHistograms(vector<vector<pair<string, double>>> dataset);
+		void histogramUpdate();
 private:
 	// From examples
 	ofxDatGuiTextInput * input;
@@ -35,5 +36,9 @@ private:
 	bool drawLines;
 	int circleResolution;
 	ofxGPlot plot;
+	vector<vector<ofxGPoint>> histogram_points_;
+
+	int current_index_ = 0;
+	int feature_size_;
 
 };
