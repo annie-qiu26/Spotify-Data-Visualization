@@ -15,6 +15,8 @@ void ofApp::setup(){
 	Json::Value audio;
 	reader.parse(infile0, audio);
 	TopTracks tracks_obj;
+
+	// Getting the data set into vectors
 	vector<vector<pair<string, double>>> liked_dataset 
 		= tracks_obj.GetDataset(audio["audio_features"], 100);
 
@@ -22,18 +24,16 @@ void ofApp::setup(){
 	vector<vector<pair<string, double>>> disliked_dataset 
 		= tracks_obj.GetDataset(audio["audio_features"], 100);
 
-	// take any sample for the dataset to set the size
+	// Take any sample for the dataset to set the size
 	feature_size_ = liked_dataset[0].size();
 	
+	// Combining the dataset
 	vector<vector<pair<string, double>>> combined_dataset = liked_dataset;
 	combined_dataset.insert(combined_dataset.end(), disliked_dataset.begin(), 
 		disliked_dataset.end());
 
-
 	vector<double> means = tracks_obj.CalculateMeans(combined_dataset);
-	cout << "Mean: " << means[11] << endl;
 	vector<double> stds = tracks_obj.CalculateStds(combined_dataset);
-	cout << "Std: " << stds[11] << endl;
 	vector<vector<pair<string, double>>> standardized_dataset 
 		= tracks_obj.StandardizeFeatures(combined_dataset);
 
@@ -67,16 +67,24 @@ void ofApp::setupPlot() {
 	plot_.setPos(0, 25);
 	plot_.setDim(900, 500);
 	plot_.setXLim(-4, 4);
+
+	// Setting title properties
 	plot_.setTitleText(histogram_titles_[current_index_]);
 	plot_.getTitle().setFontSize(24);
+
+	// Setting axis properties
 	plot_.getYAxis().getAxisLabel().setText("N");
 	plot_.getYAxis().getAxisLabel().setRotate(false);
 	plot_.getYAxis().setFontColor({ ofColor(255, 255, 255, 100) });
 	plot_.getYAxis().setFontSize(18);
 	plot_.getXAxis().setFontColor({ ofColor(255, 255, 255, 100) });
 	plot_.getXAxis().setFontSize(18);
+
+	// Setting points and layers
 	plot_.setPoints(histogram_points_l[current_index_]);
 	plot_.addLayer("Disliked Data", histogram_points_d[current_index_]);
+
+	// Setting the histogram up and colors up
 	plot_.startHistograms(GRAFICA_VERTICAL_HISTOGRAM);
 	plot_.getLayer("Disliked Data").getHistogram().setBgColors({ ofColor(255, 0, 0, 50) });
 	plot_.getLayer("Disliked Data").getHistogram().setLineColors({ ofColor(0, 0) });

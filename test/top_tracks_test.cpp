@@ -213,7 +213,7 @@ TEST_CASE("Standardize Data Empty Test") {
 }
 
 //Just for reference purposes
-TEST_CASE("Get Standardized Dataset") {
+/* TEST_CASE("Get Standardized Dataset") {
         vector <vector<pair<string, double>>> standardized_dataset
 	= test.StandardizeFeatures(dataset);
         for (unsigned int i = 0; i < standardized_dataset.size(); i++) {
@@ -221,4 +221,4 @@ TEST_CASE("Get Standardized Dataset") {
                         cout << standardized_dataset[i][j].second << endl;
                 }
         }
-}
+}*/

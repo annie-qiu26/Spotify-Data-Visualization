@@ -30,3 +30,10 @@ disliked songs. I added overlapping layers to show the differenes between the tw
 I realized that my standard deviation has overflow problems, so I need to fix that. I'll
 probably continue working on the histograms for the next couple days to make it look 
 nice on the openFrameworks application.
+
+## Working with the API using Postman : 04/26/18
+Instead of using the C++ Rest SDK or libcurl library, I decided to use Postman and have the
+user go to a link that has my collection of requests to give me access to their playlists and 
+tracks' ids. Then I'll have the user place the JSON data into the corresponding text file 
+called liked_songs_features.json and disliked_songs_features.json. I'll give instructions on this
+in the README.md and in the application.
