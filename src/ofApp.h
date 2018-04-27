@@ -24,16 +24,25 @@ public:
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
+		void setupColors();
 		void setupPlot();
 		vector<vector<ofxGPoint>> calculateHistograms(vector<vector<pair<string, double>>> dataset,
 			int start_limit, int end_limit, vector<double> means, vector<double> stds);
 		void histogramUpdate();
 		vector<string> setupTitles(vector<vector<pair<string, double>>> dataset);
+
+		void onButtonEvent(ofxDatGuiButtonEvent e);
+		void onTextInputEvent(ofxDatGuiTextInputEvent e);
 private:
+	// Spotify themed colors
+	ofColor black;
+	ofColor green;
+	ofColor grey;
+
+	ofTrueTypeFont font_;
 	// From examples
 	ofxDatGuiTextInput * input_;
-	void onTextInputEvent(ofxDatGuiTextInputEvent e);
-	ofTrueTypeFont font_;
+	ofxDatGuiButton* start_button;
 
 	// Wait do I need these?
 	ofColor point_color_;

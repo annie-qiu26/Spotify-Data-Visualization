@@ -3,10 +3,12 @@
 #include <iostream>
 
 //--------------------------------------------------------------
-void ofApp::setup(){
-	ofColor black(0, 0, 0);
+void ofApp::setup() {
+	setupColors(); 
+
 	ofSetWindowTitle("Spotify Visualization");
 	ofBackground(black);
+	font_.load("montserrat/Montserrat-Black.ttf", 24);
 
 	// Setting up data to used
 	ifstream infile0("../data/liked_songs_features.json");
@@ -37,17 +39,15 @@ void ofApp::setup(){
 	vector<vector<pair<string, double>>> standardized_dataset 
 		= tracks_obj.StandardizeFeatures(combined_dataset);
 
-	//From example
-//	ofSetWindowShape(1920, 1080);
-//	ofSetWindowPosition(ofGetScreenWidth() / 2 - ofGetWidth() / 2, 0);
-
 //  Code from ofxDatGui Example, just for reference
 
-	input_ = new ofxDatGuiTextInput("TEXT INPUT", "Type Something Here");
+	input_ = new ofxDatGuiTextInput("SEARCH", "Type Something Here");
 	input_->onTextInputEvent(this, &ofApp::onTextInputEvent);
 	input_->setWidth(800, .2);
 	input_->setPosition(ofGetWidth() / 2 - input_->getWidth() / 2, 650);
-	font_.load("ofxbraitsch/fonts/Verdana.ttf", 24);
+
+	start_button = new ofxDatGuiButton("Start");
+	start_button->onButtonEvent(this, &ofApp::onButtonEvent);
 
 // Reference from ofxGrafica Histogram Example
 	int start_limit = 0;
@@ -61,6 +61,20 @@ void ofApp::setup(){
 	histogram_titles_ = setupTitles(standardized_dataset);
 
 	setupPlot();
+}
+
+void ofApp::setupColors() {
+	green.r = 132;
+	green.g = 189;
+	green.b = 0;
+
+	black.r = 0;
+	black.g = 0;
+	black.b = 0;
+
+	grey.r = 130;
+	grey.g = 130;
+	grey.b = 130;
 }
 
 void ofApp::setupPlot() {
@@ -143,29 +157,47 @@ void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 	cout << "From Event Target: " << e.target->getText() << endl;
 }
 
+void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
+{
+	cout << e.target->getLabel() << " was clicked!" << endl;
+}
+
 //--------------------------------------------------------------
 void ofApp::update(){
 	input_->update();
+	start_button->update();
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+	// Drawing Title
+	ofSetColor(ofColor{ 255, 255, 255 });
+	ofTrueTypeFont title_font;
+	title_font.load("montserrat/Montserrat-Bold.ttf", 72);
+	title_font.drawString("Spotify Data\nVisualization", ofGetWidth() / 2 - 30, 2 * ofGetHeight() / 5);
+
+	// Drawing Button
+	start_button->setPosition(ofGetWidth() / 2 - start_button->getWidth() / 2,
+		3 * ofGetHeight() / 5);
+	start_button->setStripeColor(green);
+	start_button->draw();
+
 	input_->draw();
-	string str = "Search: " + input_->getText();
+	string str = input_->getText();
 	ofRectangle bounds = font_.getStringBoundingBox(str, ofGetWidth() / 2, 4 * ofGetHeight() / 5);
 	ofSetColor(ofColor::black);
 	font_.drawString(str, bounds.x - bounds.width / 2, bounds.y - bounds.height / 2);
 
 	// Reference from ofxGrafica
-	plot_.beginDraw();
-	plot_.drawBox();
-	plot_.drawTitle();
-	plot_.drawXAxis();
-	plot_.drawYAxis();
-	plot_.drawGridLines(GRAFICA_VERTICAL_DIRECTION);
-	plot_.drawHistograms();
+	//plot_.beginDraw();
+	//plot_.drawBox();
+	//plot_.drawTitle();
+	//plot_.drawXAxis();
+	//plot_.drawYAxis();
+	//plot_.drawGridLines(GRAFICA_VERTICAL_DIRECTION);
+	//plot_.drawHistograms();
 
-	plot_.endDraw();
+	//plot_.endDraw();
 }
 
 //--------------------------------------------------------------
