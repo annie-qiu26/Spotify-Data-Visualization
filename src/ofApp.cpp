@@ -7,8 +7,8 @@ void ofApp::setup() {
 	setupColors(); 
 
 	ofSetWindowTitle("Spotify Visualization");
-	ofBackground(black);
-	font_.load("montserrat/Montserrat-Black.ttf", 24);
+	ofBackground(black_);
+	font_.load("montserrat/Montserrat-Black.ttf", 14);
 
 	// Setting up data to used
 	ifstream infile0("../data/liked_songs_features.json");
@@ -44,11 +44,11 @@ void ofApp::setup() {
 // Reference from ofxGrafica Histogram Example
 	int start_limit = 0;
 	int end_limit = 100;
-	histogram_points_l = calculateHistograms(standardized_dataset, start_limit, end_limit,
+	histogram_points_l_ = calculateHistograms(standardized_dataset, start_limit, end_limit,
 		means, stds);
 	start_limit = 100;
 	end_limit = standardized_dataset.size();
-	histogram_points_d = calculateHistograms(standardized_dataset, start_limit, end_limit,
+	histogram_points_d_ = calculateHistograms(standardized_dataset, start_limit, end_limit,
 		means, stds);
 	histogram_titles_ = setupTitles(standardized_dataset);
 
@@ -56,13 +56,13 @@ void ofApp::setup() {
 }
 
 void ofApp::setupColors() {
-	green.r = 132;
-	green.g = 189;
-	green.b = 0;
+	green_.r = 132;
+	green_.g = 189;
+	green_.b = 0;
 
-	black.r = 0;
-	black.g = 0;
-	black.b = 0;
+	black_.r = 0;
+	black_.g = 0;
+	black_.b = 0;
 
 	grey.r = 130;
 	grey.g = 130;
@@ -70,7 +70,7 @@ void ofApp::setupColors() {
 }
 
 void ofApp::setupPlot() {
-	plot_.setPos(0, 25);
+	plot_.setPos(ofGetWidth() / 2 - 450, ofGetHeight() / 2 - 250);
 	plot_.setDim(900, 500);
 	plot_.setXLim(-4, 4);
 
@@ -87,8 +87,8 @@ void ofApp::setupPlot() {
 	plot_.getXAxis().setFontSize(18);
 
 	// Setting points and layers
-	plot_.setPoints(histogram_points_l[current_index_]);
-	plot_.addLayer("Disliked Data", histogram_points_d[current_index_]);
+	plot_.setPoints(histogram_points_l_[current_index_]);
+	plot_.addLayer("Disliked Data", histogram_points_d_[current_index_]);
 
 	// Setting the histogram up and colors up
 	plot_.startHistograms(GRAFICA_VERTICAL_HISTOGRAM);
@@ -111,10 +111,9 @@ void ofApp::setupGUI() {
 
 	start_button = new ofxDatGuiButton("Start");
 	start_button->onButtonEvent(this, &ofApp::onButtonEvent);
-	start_button->setPosition(ofGetWidth() / 2 - start_button->getWidth() / 2,
-		3 * ofGetHeight() / 5 + 20);
-	start_button->setWidth(100);
-	start_button->setStripeColor(green);
+	start_button->setWidth(150);
+	start_button->setStripeColor(green_);
+	
 	parameters_.load("parameters.png");
 	globals_.load("globals.png");
 }
@@ -181,23 +180,18 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw() {
-
-	input_->draw();
-	string str = input_->getText();
-	ofRectangle bounds = font_.getStringBoundingBox(str, ofGetWidth() / 2, 4 * ofGetHeight() / 5);
-	ofSetColor(ofColor::black);
-	font_.drawString(str, bounds.x - bounds.width / 2, bounds.y - bounds.height / 2);
-
-	// Reference from ofxGrafica
-	//plot_.beginDraw();
-	//plot_.drawBox();
-	//plot_.drawTitle();
-	//plot_.drawXAxis();
-	//plot_.drawYAxis();
-	//plot_.drawGridLines(GRAFICA_VERTICAL_DIRECTION);
-	//plot_.drawHistograms();
-
-	//plot_.endDraw();
+	if (start_) {
+		drawStartScreen();
+	}
+	else if (instruction_) {
+		drawInstructionScreen();
+	}
+	else if (histogram_) {
+		drawHistograms();
+	}
+	else if (prediction_) {
+		// drawPredictions();
+	}
 }
 
 void ofApp::drawStartScreen() {
@@ -205,50 +199,69 @@ void ofApp::drawStartScreen() {
 	ofSetColor(ofColor{ 255, 255, 255 });
 	ofTrueTypeFont title_font;
 	title_font.load("montserrat/Montserrat-Bold.ttf", 72);
-	title_font.drawString("Spotify Data\nVisualization", ofGetWidth() / 2 - 315, 2 * ofGetHeight() / 5);
+	title_font.drawString("Spotify Data\nVisualization", ofGetWidth() / 2 - 318, 2 * ofGetHeight() / 5);
 
 	// Drawing Button
 	start_button->draw();
+	start_button->setPosition(ofGetWidth() / 2 - start_button->getWidth() / 3,
+		3 * ofGetHeight() / 5 + 20);
 }
 
 void ofApp::drawInstructionScreen() {
 	// Drawing Instructions
 	ofSetColor(ofColor{ 255, 255, 255 });
-	font_.drawString("1. Download the Postman extension on Google Chrome", ofGetWidth() / 5, 
-		ofGetHeight() / 14);
+	font_.drawString("1. Download the Postman extension on Google Chrome", ofGetWidth() / 10, 
+		ofGetHeight() / 15);
 	string link = "https://www.getpostman.com/collections/90c7c17db56eb15c0e5b";
 	font_.drawString("2. Click import, and then \"import from link\" and paste in this link:\n" + link, 
-		ofGetWidth() / 5, 2 * ofGetHeight() / 14);
+		ofGetWidth() / 10, 2 * ofGetHeight() / 15);
 	font_.drawString("3. Once you get the collection, change the Authorization type to OAuth2",
-		ofGetWidth() / 5, 3 * ofGetHeight() / 14);
+		ofGetWidth() / 10, 3 * ofGetHeight() / 15);
 	font_.drawString("4. Get new access token, and fill in the following parameters shown on the right", 
-		ofGetWidth() / 5, 4 * ofGetHeight() / 14);
+		ofGetWidth() / 10, 4 * ofGetHeight() / 15);
 	parameters_.draw(3 * ofGetWidth() / 5, ofGetHeight() / 5);
 	font_.drawString("5. Client ID is: 8e8f59148afa40b08367c08ad922bf1f\nClient Secret is: 205d49e13d1a4086b200c350dd244f6e",
-		ofGetWidth() / 5, 5 * ofGetHeight() / 14);
+		ofGetWidth() / 10, 5 * ofGetHeight() / 15);
 	font_.drawString("6. Request token, sign in to Spotify and accept conditions, and then click use token",
-		ofGetWidth() / 5, 6 * ofGetHeight() / 14);
+		ofGetWidth() / 10, 6 * ofGetHeight() / 15);
 	font_.drawString("7. Press send for \"Find Playlist IDs\" and it should show a JSON body",
-		ofGetWidth() / 5, 7 * ofGetHeight() / 14);
+		ofGetWidth() / 10, 7 * ofGetHeight() / 15);
 	font_.drawString("8. Find the playlist IDs of your Liked playlist and Disliked playlist\nNote the ids are above the name of the playlists",
-		ofGetWidth(), 8 * ofGetHeight() / 14);
+		ofGetWidth() / 10, 8 * ofGetHeight() / 15);
 	font_.drawString("9. Go to the \"Get Liked Playlist Tracks' IDs\" GET request, and click on \"Manage Environment\" in settings",
-		ofGetWidth() / 5, 9 * ofGetHeight() / 14);
+		ofGetWidth() / 10, 9 * ofGetHeight() / 15);
 	font_.drawString("10. Click on \"Globals\" and fill out the parameters shown on the right",
-		ofGetWidth() / 5, 10 * ofGetHeight() / 14);
+		ofGetWidth() / 10, 10 * ofGetHeight() / 15);
 	globals_.draw(3 * ofGetWidth() / 5, 7 * ofGetHeight() / 5);
-	font_.drawString("11. Press send and you should receive another JSON body", ofGetWidth() / 5,
-		11 * ofGetHeight() / 14);
+	font_.drawString("11. Press send and you should receive another JSON body", ofGetWidth() / 10,
+		11 * ofGetHeight() / 15);
 	font_.drawString("12. Copy the JSON body in \"liked_songs_features\" file in the data folder",
-		ofGetWidth() / 5, 12 * ofGetHeight() / 14);
+		ofGetWidth() / 10, 12 * ofGetHeight() / 15);
 	font_.drawString("13. Repeat for steps 9 - 12 with \"Get Disliked Playlist Tracks' IDs\"",
-		ofGetWidth() / 5, 13 * ofGetHeight() / 14);
-	font_.drawString("14. Press the button on the bottom to reveal the data", ofGetWidth() / 5,
-		ofGetHeight() / 14);
+		ofGetWidth() / 10, 13 * ofGetHeight() / 15);
+	font_.drawString("14. Press the button on the bottom to reveal the data", ofGetWidth() / 10,
+		14 * ofGetHeight() / 15);
 
 }
 
 void ofApp::drawHistograms() {
+	// Code derived from: ofxDatGui example
+	input_->draw();
+	string str = input_->getText();
+	ofRectangle bounds = font_.getStringBoundingBox(str, ofGetWidth() / 2, 4 * ofGetHeight() / 5);
+	ofSetColor(ofColor::black);
+	font_.drawString(str, bounds.x - bounds.width / 2, bounds.y - bounds.height / 2);
+
+	// Code derived from: ofxGrafica example
+	plot_.beginDraw();
+	plot_.drawBox();
+	plot_.drawTitle();
+	plot_.drawXAxis();
+	plot_.drawYAxis();
+	plot_.drawGridLines(GRAFICA_VERTICAL_DIRECTION);
+	plot_.drawHistograms();
+	plot_.endDraw();
+
 
 }
 
@@ -268,13 +281,18 @@ void ofApp::keyPressed(int key){
 		}
 		histogramUpdate();
 	}
+	//Temp fix
+	else if (key == 'H') {
+		histogram_ = true;
+		instruction_ = false;
+	}
 
 }
 
 void ofApp::histogramUpdate() {
 	plot_.setTitleText(histogram_titles_[current_index_]);
-	plot_.setPoints(histogram_points_l[current_index_]);
-	plot_.getLayer("Disliked Data").setPoints(histogram_points_d[current_index_]);
+	plot_.setPoints(histogram_points_l_[current_index_]);
+	plot_.getLayer("Disliked Data").setPoints(histogram_points_d_[current_index_]);
 }
 
 //--------------------------------------------------------------

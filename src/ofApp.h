@@ -42,14 +42,14 @@ public:
 		void drawPredictions();
 private:
 	// Spotify themed colors
-	ofColor black;
-	ofColor green;
-	ofColor grey;
+	ofColor black_;
+	ofColor green_;
+	ofColor grey_;
 
 	ofTrueTypeFont font_;
 	// From examples
 	ofxDatGuiTextInput * input_;
-	ofxDatGuiButton* start_button;
+	ofxDatGuiButton* start_button_;
 
 	// Wait do I need these?
 	ofColor point_color_;
@@ -57,8 +57,8 @@ private:
 	int circle_resolution_;
 
 	ofxGPlot plot_;
-	vector<vector<ofxGPoint>> histogram_points_l;
-	vector<vector<ofxGPoint>> histogram_points_d;
+	vector<vector<ofxGPoint>> histogram_points_l_;
+	vector<vector<ofxGPoint>> histogram_points_d_;
 	vector<string> histogram_titles_;
 
 	int current_index_ = 0;

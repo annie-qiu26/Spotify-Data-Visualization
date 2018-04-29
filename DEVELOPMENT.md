@@ -37,3 +37,9 @@ user go to a link that has my collection of requests to give me access to their 
 tracks' ids. Then I'll have the user place the JSON data into the corresponding text file 
 called liked_songs_features.json and disliked_songs_features.json. I'll give instructions on this
 in the README.md and in the application.
+
+## Drawing Screens in Application : 04/29/18
+Currently, I'm working on the graphics of the openFrameworks application. I'm laying out the four 
+different screens people will see, which are the start, instruction, histogram, and predictor 
+screens. I'm using the Montserrat font, which looks like Spotify's font, and then mimicking their
+colors as well. I've added buttons to help with navigation.
