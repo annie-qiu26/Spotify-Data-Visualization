@@ -26,6 +26,7 @@ public:
 
 		void setupColors();
 		void setupPlot();
+		void setupGUI();
 		vector<vector<ofxGPoint>> calculateHistograms(vector<vector<pair<string, double>>> dataset,
 			int start_limit, int end_limit, vector<double> means, vector<double> stds);
 		void histogramUpdate();
@@ -33,6 +34,12 @@ public:
 
 		void onButtonEvent(ofxDatGuiButtonEvent e);
 		void onTextInputEvent(ofxDatGuiTextInputEvent e);
+
+		// Drawing functions
+		void drawStartScreen();
+		void drawInstructionScreen();
+		void drawHistograms();
+		void drawPredictions();
 private:
 	// Spotify themed colors
 	ofColor black;
@@ -56,5 +63,14 @@ private:
 
 	int current_index_ = 0;
 	int feature_size_;
+
+	// Flags to determine which screen
+	bool start_ = true;
+	bool instruction_ = false;
+	bool histogram_ = false;
+	bool prediction_ = false;
+	
+	ofImage parameters_;
+	ofImage globals_;
 
 };

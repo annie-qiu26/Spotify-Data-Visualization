@@ -39,15 +39,7 @@ void ofApp::setup() {
 	vector<vector<pair<string, double>>> standardized_dataset 
 		= tracks_obj.StandardizeFeatures(combined_dataset);
 
-//  Code from ofxDatGui Example, just for reference
-
-	input_ = new ofxDatGuiTextInput("SEARCH", "Type Something Here");
-	input_->onTextInputEvent(this, &ofApp::onTextInputEvent);
-	input_->setWidth(800, .2);
-	input_->setPosition(ofGetWidth() / 2 - input_->getWidth() / 2, 650);
-
-	start_button = new ofxDatGuiButton("Start");
-	start_button->onButtonEvent(this, &ofApp::onButtonEvent);
+	setupGUI();
 
 // Reference from ofxGrafica Histogram Example
 	int start_limit = 0;
@@ -111,6 +103,22 @@ void ofApp::setupPlot() {
 	plot_.activateReset();
 }
 
+void ofApp::setupGUI() {
+	input_ = new ofxDatGuiTextInput("SEARCH", "Type Something Here");
+	input_->onTextInputEvent(this, &ofApp::onTextInputEvent);
+	input_->setWidth(800, .2);
+	input_->setPosition(ofGetWidth() / 2 - input_->getWidth() / 2, 650);
+
+	start_button = new ofxDatGuiButton("Start");
+	start_button->onButtonEvent(this, &ofApp::onButtonEvent);
+	start_button->setPosition(ofGetWidth() / 2 - start_button->getWidth() / 2,
+		3 * ofGetHeight() / 5 + 20);
+	start_button->setWidth(100);
+	start_button->setStripeColor(green);
+	parameters_.load("parameters.png");
+	globals_.load("globals.png");
+}
+
 vector<string> ofApp::setupTitles(vector<vector<pair<string, double>>> dataset) {
 	vector<string> titles;
 	// just take the first sample for titles
@@ -160,6 +168,9 @@ void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 {
 	cout << e.target->getLabel() << " was clicked!" << endl;
+	start_ = false;
+	instruction_ = true;
+
 }
 
 //--------------------------------------------------------------
@@ -169,18 +180,7 @@ void ofApp::update(){
 }
 
 //--------------------------------------------------------------
-void ofApp::draw(){
-	// Drawing Title
-	ofSetColor(ofColor{ 255, 255, 255 });
-	ofTrueTypeFont title_font;
-	title_font.load("montserrat/Montserrat-Bold.ttf", 72);
-	title_font.drawString("Spotify Data\nVisualization", ofGetWidth() / 2 - 30, 2 * ofGetHeight() / 5);
-
-	// Drawing Button
-	start_button->setPosition(ofGetWidth() / 2 - start_button->getWidth() / 2,
-		3 * ofGetHeight() / 5);
-	start_button->setStripeColor(green);
-	start_button->draw();
+void ofApp::draw() {
 
 	input_->draw();
 	string str = input_->getText();
@@ -200,16 +200,68 @@ void ofApp::draw(){
 	//plot_.endDraw();
 }
 
+void ofApp::drawStartScreen() {
+	// Drawing Title
+	ofSetColor(ofColor{ 255, 255, 255 });
+	ofTrueTypeFont title_font;
+	title_font.load("montserrat/Montserrat-Bold.ttf", 72);
+	title_font.drawString("Spotify Data\nVisualization", ofGetWidth() / 2 - 315, 2 * ofGetHeight() / 5);
+
+	// Drawing Button
+	start_button->draw();
+}
+
+void ofApp::drawInstructionScreen() {
+	// Drawing Instructions
+	ofSetColor(ofColor{ 255, 255, 255 });
+	font_.drawString("1. Download the Postman extension on Google Chrome", ofGetWidth() / 5, 
+		ofGetHeight() / 14);
+	string link = "https://www.getpostman.com/collections/90c7c17db56eb15c0e5b";
+	font_.drawString("2. Click import, and then \"import from link\" and paste in this link:\n" + link, 
+		ofGetWidth() / 5, 2 * ofGetHeight() / 14);
+	font_.drawString("3. Once you get the collection, change the Authorization type to OAuth2",
+		ofGetWidth() / 5, 3 * ofGetHeight() / 14);
+	font_.drawString("4. Get new access token, and fill in the following parameters shown on the right", 
+		ofGetWidth() / 5, 4 * ofGetHeight() / 14);
+	parameters_.draw(3 * ofGetWidth() / 5, ofGetHeight() / 5);
+	font_.drawString("5. Client ID is: 8e8f59148afa40b08367c08ad922bf1f\nClient Secret is: 205d49e13d1a4086b200c350dd244f6e",
+		ofGetWidth() / 5, 5 * ofGetHeight() / 14);
+	font_.drawString("6. Request token, sign in to Spotify and accept conditions, and then click use token",
+		ofGetWidth() / 5, 6 * ofGetHeight() / 14);
+	font_.drawString("7. Press send for \"Find Playlist IDs\" and it should show a JSON body",
+		ofGetWidth() / 5, 7 * ofGetHeight() / 14);
+	font_.drawString("8. Find the playlist IDs of your Liked playlist and Disliked playlist\nNote the ids are above the name of the playlists",
+		ofGetWidth(), 8 * ofGetHeight() / 14);
+	font_.drawString("9. Go to the \"Get Liked Playlist Tracks' IDs\" GET request, and click on \"Manage Environment\" in settings",
+		ofGetWidth() / 5, 9 * ofGetHeight() / 14);
+	font_.drawString("10. Click on \"Globals\" and fill out the parameters shown on the right",
+		ofGetWidth() / 5, 10 * ofGetHeight() / 14);
+	globals_.draw(3 * ofGetWidth() / 5, 7 * ofGetHeight() / 5);
+	font_.drawString("11. Press send and you should receive another JSON body", ofGetWidth() / 5,
+		11 * ofGetHeight() / 14);
+	font_.drawString("12. Copy the JSON body in \"liked_songs_features\" file in the data folder",
+		ofGetWidth() / 5, 12 * ofGetHeight() / 14);
+	font_.drawString("13. Repeat for steps 9 - 12 with \"Get Disliked Playlist Tracks' IDs\"",
+		ofGetWidth() / 5, 13 * ofGetHeight() / 14);
+	font_.drawString("14. Press the button on the bottom to reveal the data", ofGetWidth() / 5,
+		ofGetHeight() / 14);
+
+}
+
+void ofApp::drawHistograms() {
+
+}
+
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-	if (key == OF_KEY_RIGHT) {
+	if (histogram_ && key == OF_KEY_RIGHT) {
 		current_index_++;
 		if (current_index_ == feature_size_) {
 			current_index_ = 0;
 		}
 		histogramUpdate();
 	}
-	else if (key == OF_KEY_LEFT) {
+	else if (histogram_ && key == OF_KEY_LEFT) {
 		current_index_--;
 		if (current_index_ < 0) {
 			current_index_ = feature_size_ - 1;
