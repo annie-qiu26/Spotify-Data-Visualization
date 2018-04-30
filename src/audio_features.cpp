@@ -43,9 +43,9 @@ vector<pair<string, double>> AudioFeatures::GetFeatures() {
         vector<pair<string, double>> features;
         features.push_back(make_pair("Danceability", danceability));
         features.push_back(make_pair("Energy", energy));
-        features.push_back(make_pair("Key", key)); //*
+        //features.push_back(make_pair("Key", key)); //*
         features.push_back(make_pair("Loudness", loudness));
-        features.push_back(make_pair("Mode", mode)); //*
+        //features.push_back(make_pair("Mode", mode)); //*
         features.push_back(make_pair("Speechiness", speechiness));
         features.push_back(make_pair("Acousticness", acousticness));
         features.push_back(make_pair("Instrumentalness", instrumentalness));
@@ -53,7 +53,7 @@ vector<pair<string, double>> AudioFeatures::GetFeatures() {
         features.push_back(make_pair("Valence", valence));
         features.push_back(make_pair("Tempo", tempo));
         features.push_back(make_pair("Duration in Milliseconds", duration_ms)); //*
-        features.push_back(make_pair("Time Signature", time_signature)); //*
+        //features.push_back(make_pair("Time Signature", time_signature)); //*
         return features;
 }
 

@@ -4,7 +4,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {
-	setupColors(); 
+	setupColors();
 
 	ofSetWindowTitle("Spotify Visualization");
 	ofBackground(black_);
@@ -19,24 +19,24 @@ void ofApp::setup() {
 	TopTracks tracks_obj;
 
 	// Getting the data set into vectors
-	vector<vector<pair<string, double>>> liked_dataset 
+	vector<vector<pair<string, double>>> liked_dataset
 		= tracks_obj.GetDataset(audio["audio_features"], 100);
 
 	reader.parse(infile1, audio);
-	vector<vector<pair<string, double>>> disliked_dataset 
+	vector<vector<pair<string, double>>> disliked_dataset
 		= tracks_obj.GetDataset(audio["audio_features"], 100);
 
 	// Take any sample for the dataset to set the size
 	feature_size_ = liked_dataset[0].size();
-	
+
 	// Combining the dataset
 	vector<vector<pair<string, double>>> combined_dataset = liked_dataset;
-	combined_dataset.insert(combined_dataset.end(), disliked_dataset.begin(), 
+	combined_dataset.insert(combined_dataset.end(), disliked_dataset.begin(),
 		disliked_dataset.end());
 
 	vector<double> means = tracks_obj.CalculateMeans(combined_dataset);
 	vector<double> stds = tracks_obj.CalculateStds(combined_dataset);
-	vector<vector<pair<string, double>>> standardized_dataset 
+	vector<vector<pair<string, double>>> standardized_dataset
 		= tracks_obj.StandardizeFeatures(combined_dataset);
 
 	setupGUI();
@@ -64,13 +64,13 @@ void ofApp::setupColors() {
 	black_.g = 0;
 	black_.b = 0;
 
-	grey.r = 130;
-	grey.g = 130;
-	grey.b = 130;
+	grey_.r = 130;
+	grey_.g = 130;
+	grey_.b = 130;
 }
 
 void ofApp::setupPlot() {
-	plot_.setPos(ofGetWidth() / 2 - 450, ofGetHeight() / 2 - 250);
+	plot_.setPos(ofGetWidth() / 2 - 75, ofGetHeight() / 2 - 150);
 	plot_.setDim(900, 500);
 	plot_.setXLim(-4, 4);
 
@@ -109,11 +109,11 @@ void ofApp::setupGUI() {
 	input_->setWidth(800, .2);
 	input_->setPosition(ofGetWidth() / 2 - input_->getWidth() / 2, 650);
 
-	start_button = new ofxDatGuiButton("Start");
-	start_button->onButtonEvent(this, &ofApp::onButtonEvent);
-	start_button->setWidth(150);
-	start_button->setStripeColor(green_);
-	
+	start_button_ = new ofxDatGuiButton("Start");
+	start_button_->onButtonEvent(this, &ofApp::onButtonEvent);
+	start_button_->setWidth(150);
+	start_button_->setStripeColor(green_);
+
 	parameters_.load("parameters.png");
 	globals_.load("globals.png");
 }
@@ -175,7 +175,7 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 //--------------------------------------------------------------
 void ofApp::update(){
 	input_->update();
-	start_button->update();
+	start_button_->update();
 }
 
 //--------------------------------------------------------------
@@ -202,44 +202,44 @@ void ofApp::drawStartScreen() {
 	title_font.drawString("Spotify Data\nVisualization", ofGetWidth() / 2 - 318, 2 * ofGetHeight() / 5);
 
 	// Drawing Button
-	start_button->draw();
-	start_button->setPosition(ofGetWidth() / 2 - start_button->getWidth() / 3,
+	start_button_->draw();
+	start_button_->setPosition(ofGetWidth() / 2 - start_button_->getWidth() / 3,
 		3 * ofGetHeight() / 5 + 20);
 }
 
 void ofApp::drawInstructionScreen() {
 	// Drawing Instructions
 	ofSetColor(ofColor{ 255, 255, 255 });
-	font_.drawString("1. Download the Postman extension on Google Chrome", ofGetWidth() / 10, 
+	font_.drawString("1. Download the Postman extension on Google Chrome", 50, 
 		ofGetHeight() / 15);
 	string link = "https://www.getpostman.com/collections/90c7c17db56eb15c0e5b";
-	font_.drawString("2. Click import, and then \"import from link\" and paste in this link:\n" + link, 
-		ofGetWidth() / 10, 2 * ofGetHeight() / 15);
+	font_.drawString("2. Click import, and then \"import from link\" and paste in this link:\n" + link,
+		50, 2 * ofGetHeight() / 15);
 	font_.drawString("3. Once you get the collection, change the Authorization type to OAuth2",
-		ofGetWidth() / 10, 3 * ofGetHeight() / 15);
-	font_.drawString("4. Get new access token, and fill in the following parameters shown on the right", 
-		ofGetWidth() / 10, 4 * ofGetHeight() / 15);
-	parameters_.draw(3 * ofGetWidth() / 5, ofGetHeight() / 5);
+		50, 3 * ofGetHeight() / 15);
+	font_.drawString("4. Get new access token, and fill in the following parameters shown on the right",
+		50, 4 * ofGetHeight() / 15);
+	parameters_.draw(3 * ofGetWidth() / 5 + 50, 75, 350, 450);
 	font_.drawString("5. Client ID is: 8e8f59148afa40b08367c08ad922bf1f\nClient Secret is: 205d49e13d1a4086b200c350dd244f6e",
-		ofGetWidth() / 10, 5 * ofGetHeight() / 15);
+		50, 5 * ofGetHeight() / 15);
 	font_.drawString("6. Request token, sign in to Spotify and accept conditions, and then click use token",
-		ofGetWidth() / 10, 6 * ofGetHeight() / 15);
+		50, 6 * ofGetHeight() / 15);
 	font_.drawString("7. Press send for \"Find Playlist IDs\" and it should show a JSON body",
-		ofGetWidth() / 10, 7 * ofGetHeight() / 15);
+		50, 7 * ofGetHeight() / 15);
 	font_.drawString("8. Find the playlist IDs of your Liked playlist and Disliked playlist\nNote the ids are above the name of the playlists",
-		ofGetWidth() / 10, 8 * ofGetHeight() / 15);
-	font_.drawString("9. Go to the \"Get Liked Playlist Tracks' IDs\" GET request, and click on \"Manage Environment\" in settings",
-		ofGetWidth() / 10, 9 * ofGetHeight() / 15);
+		50, 8 * ofGetHeight() / 15);
+	font_.drawString("9. Go to the \"Get Liked Playlist Tracks' IDs\" GET request, and click on\n\"Manage Environment\" in settings",
+		50, 9 * ofGetHeight() / 15);
 	font_.drawString("10. Click on \"Globals\" and fill out the parameters shown on the right",
-		ofGetWidth() / 10, 10 * ofGetHeight() / 15);
-	globals_.draw(3 * ofGetWidth() / 5, 7 * ofGetHeight() / 5);
-	font_.drawString("11. Press send and you should receive another JSON body", ofGetWidth() / 10,
+		50, 10 * ofGetHeight() / 15);
+	globals_.draw(3 * ofGetWidth() / 5 - 75, 550, 600, 400);
+	font_.drawString("11. Press send and you should receive another JSON body", 50,
 		11 * ofGetHeight() / 15);
 	font_.drawString("12. Copy the JSON body in \"liked_songs_features\" file in the data folder",
-		ofGetWidth() / 10, 12 * ofGetHeight() / 15);
+		50, 12 * ofGetHeight() / 15);
 	font_.drawString("13. Repeat for steps 9 - 12 with \"Get Disliked Playlist Tracks' IDs\"",
-		ofGetWidth() / 10, 13 * ofGetHeight() / 15);
-	font_.drawString("14. Press the button on the bottom to reveal the data", ofGetWidth() / 10,
+		50, 13 * ofGetHeight() / 15);
+	font_.drawString("14. Press \'s\' to display the data", 50,
 		14 * ofGetHeight() / 15);
 
 }
@@ -282,7 +282,7 @@ void ofApp::keyPressed(int key){
 		histogramUpdate();
 	}
 	//Temp fix
-	else if (key == 'H') {
+	else if (key == 's') {
 		histogram_ = true;
 		instruction_ = false;
 	}
