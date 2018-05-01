@@ -7,7 +7,7 @@
 
 using namespace std;
 
-// Temporary solution from:
+// Code derived from:
 // https://www.gamedev.net/forums/topic/353162-reading-a-whole-file-into-a-string-with-ifstream/
 ifstream infile("../data/top_tracks.json");
 ifstream infile2("../data/disliked_songs.json");
