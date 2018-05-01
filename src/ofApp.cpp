@@ -54,6 +54,7 @@ void ofApp::setup() {
 
 
 	setupTitles(standardized_dataset);
+	setupBounds(means, stds);
 	setupHistograms();
 }
 
@@ -73,7 +74,7 @@ void ofApp::setupColors() {
 
 void ofApp::setupHistograms() {
 	// Code derived from: ofxGrafica example
-	plot_.setPos(ofGetWidth() / 2 - 250, ofGetHeight() / 2 - 250);
+	plot_.setPos(ofGetWidth() / 2 - 190, ofGetHeight() / 2 - 325);
 	plot_.setDim(1200, 700);
 	plot_.setFontName("montserrat/Montserrat-Black.ttf");
 
@@ -81,15 +82,20 @@ void ofApp::setupHistograms() {
 	plot_.getTitle().setFontName("montserrat/Montserrat-Black.ttf");
 	plot_.setTitleText(histogram_titles_[current_index_]);
 	plot_.getTitle().setFontSize(24);
-	plot_.getTitle().setFontColor(ofColor(255, 255, 255));
+	plot_.getTitle().setFontColor({ ofColor(255, 255, 255) });
 
 	// Setting axis properties
-	plot_.getYAxis().getAxisLabel().setText("N");
-	plot_.getYAxis().getAxisLabel().setRotate(false);
+	plot_.getYAxis().getAxisLabel().setText("# of Songs");
+	plot_.getYAxis().getAxisLabel().setOffset(65);
+	plot_.getYAxis().getAxisLabel().setFontName("montserrat/Montserrat-Black.ttf");
+	plot_.getYAxis().getAxisLabel().setFontColor({ ofColor(255, 255, 255) });
+	plot_.getYAxis().getAxisLabel().setFontSize(18);
 	plot_.getYAxis().setFontColor({ ofColor(255, 255, 255) });
 	plot_.getYAxis().setFontSize(18);
+	plot_.getYAxis().setFontName("montserrat/Montserrat-Black.ttf");
 	plot_.getXAxis().setFontColor({ ofColor(255, 255, 255) });
 	plot_.getXAxis().setFontSize(18);
+	plot_.getXAxis().setFontName("montserrat/Montserrat-Black.ttf");
 
 	// Setting points and layers
 	plot_.setPoints(histogram_points_l_[current_index_]);
@@ -109,17 +115,28 @@ void ofApp::setupHistograms() {
 }
 
 void ofApp::setupGUI() {
-	input_ = new ofxDatGuiTextInput("SEARCH", "Type Something Here");
+	input_ = new ofxDatGuiTextInput("Search", "Type Something Here");
 	input_->onTextInputEvent(this, &ofApp::onTextInputEvent);
 	input_->setWidth(800, .2);
-	input_->setPosition(ofGetWidth() / 2 + 50, 850);
+	input_->setPosition(ofGetWidth() / 2 + 75, 875);
+	input_->setStripeColor(green_);
 
-	start_button_ = new ofxDatGuiButton("Start");
+	start_button_ = new ofxDatGuiButton("Back to Start");
 	start_button_->onButtonEvent(this, &ofApp::onButtonEvent);
-	start_button_->setWidth(150);
+	start_button_->setWidth(125);
 	start_button_->setStripeColor(green_);
 
-	prediction_button_ = new ofxDatGuiButton("Predictions");
+	instruction_button_ = new ofxDatGuiButton("Start");
+	instruction_button_->onButtonEvent(this, &ofApp::onButtonEvent);
+	instruction_button_->setWidth(150);
+	instruction_button_->setStripeColor(green_);
+
+	histogram_button_ = new ofxDatGuiButton("To Histograms");
+	histogram_button_->onButtonEvent(this, &ofApp::onButtonEvent);
+	histogram_button_->setWidth(100);
+	histogram_button_->setStripeColor(green_);
+
+	prediction_button_ = new ofxDatGuiButton("Go to Prediction Screen");
 	prediction_button_->onButtonEvent(this, &ofApp::onButtonEvent);
 	prediction_button_->setWidth(150);
 	prediction_button_->setStripeColor(green_);
@@ -132,6 +149,13 @@ void ofApp::setupTitles(vector<vector<pair<string, double>>> dataset) {
 	// just take the first sample for titles
 	for (int i = 0; i < dataset[0].size(); i++) {
 		histogram_titles_.push_back(dataset[0][i].first);
+	}
+}
+
+void ofApp::setupBounds(vector<double> means, vector<double> stds) {
+	for (int i = 0; i < means.size(); i++) {
+		lower_bounds_.push_back(means[i] - 4 * stds[i]);
+		upper_bounds_.push_back(means[i] + 4 * stds[i]);
 	}
 }
 
@@ -181,11 +205,28 @@ void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 
 void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 {
-	if (start_) {
+	string target = e.target->getLabel();
+	if (target == "Back to Start") {
+		start_ = true;
+		instruction_ = false;
+		histogram_ = false;
+		prediction_ = false;
+	}
+	else if (target == "Start") {
 		start_ = false;
 		instruction_ = true;
+		histogram_ = false;
+		prediction_ = false;
 	}
-	else {
+	else if (target == "To Histograms") {
+		start_ = false;
+		instruction_ = false;
+		histogram_ = true;
+		prediction_ = false;
+	}
+	else if (target == "Go to Prediction Screen") {
+		start_ = false;
+		instruction_ = false;
 		histogram_ = false;
 		prediction_ = true;
 	}
@@ -195,6 +236,8 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 void ofApp::update(){
 	input_->update();
 	start_button_->update();
+	instruction_button_->update();
+	histogram_button_->update();
 	prediction_button_->update();
 }
 
@@ -220,45 +263,48 @@ void ofApp::drawStartScreen() {
 	title_font_.drawString("Spotify Data\nVisualization", ofGetWidth() / 2 - 318, 2 * ofGetHeight() / 5);
 
 	// Drawing Button
-	start_button_->draw();
-	start_button_->setPosition(ofGetWidth() / 2 - start_button_->getWidth() / 3,
+	instruction_button_->draw();
+	instruction_button_->setPosition(ofGetWidth() / 2 - instruction_button_->getWidth() / 3,
 		3 * ofGetHeight() / 5 + 20);
 }
 
 void ofApp::drawInstructionScreen() {
 	// Drawing Instructions
 	ofSetColor(ofColor{ 255, 255, 255 });
-	font_.drawString("1. Download the Postman extension on Google Chrome", 50,
+	font_.drawString("1. Download the Postman extension on Google Chrome", 75,
 		ofGetHeight() / 15);
 	string link = "https://www.getpostman.com/collections/47dc5dade17a715c89b2";
 	font_.drawString("2. Click import, and then \"import from link\" and paste in this link:\n" + link,
-		50, 2 * ofGetHeight() / 15);
+		75, 2 * ofGetHeight() / 15);
 	font_.drawString("3. Once you get the collection, change the Authorization type to OAuth2",
-		50, 3 * ofGetHeight() / 15);
+		75, 3 * ofGetHeight() / 15);
 	font_.drawString("4. Get new access token, and fill in the following parameters shown on the right",
-		50, 4 * ofGetHeight() / 15);
-	parameters_.draw(3 * ofGetWidth() / 5 + 50, 75, 350, 450);
+		75, 4 * ofGetHeight() / 15);
+	parameters_.draw(3 * ofGetWidth() / 5 + 100, 75, 350, 450);
 	font_.drawString("5. Client ID is: 8e8f59148afa40b08367c08ad922bf1f\nClient Secret is: 205d49e13d1a4086b200c350dd244f6e",
-		50, 5 * ofGetHeight() / 15);
+		75, 5 * ofGetHeight() / 15);
 	font_.drawString("6. Request token, sign in to Spotify and accept conditions, and then click use token",
-		50, 6 * ofGetHeight() / 15);
+		75, 6 * ofGetHeight() / 15);
 	font_.drawString("7. Press send for \"Find Playlist IDs\" and it should show a JSON body",
-		50, 7 * ofGetHeight() / 15);
+		75, 7 * ofGetHeight() / 15);
 	font_.drawString("8. Find the playlist IDs of your Liked playlist and Disliked playlist\nNote the ids are above the name of the playlists",
-		50, 8 * ofGetHeight() / 15);
+		75, 8 * ofGetHeight() / 15);
 	font_.drawString("9. Go to the \"Get Liked Playlist Tracks' IDs\" GET request, and click on\n\"Manage Environment\" in settings",
-		50, 9 * ofGetHeight() / 15);
+		75, 9 * ofGetHeight() / 15);
 	font_.drawString("10. Click on \"Globals\" and fill out the parameters shown on the right",
-		50, 10 * ofGetHeight() / 15);
-	globals_.draw(3 * ofGetWidth() / 5 - 75, 550, 600, 400);
-	font_.drawString("11. Press send and you should receive another JSON body", 50,
+		75, 10 * ofGetHeight() / 15);
+	globals_.draw(3 * ofGetWidth() / 5 - 25, 550, 600, 400);
+	font_.drawString("11. Press send and you should receive another JSON body", 75,
 		11 * ofGetHeight() / 15);
 	font_.drawString("12. Copy the JSON body in \"liked_songs_features\" file in the data folder",
-		50, 12 * ofGetHeight() / 15);
+		75, 12 * ofGetHeight() / 15);
 	font_.drawString("13. Repeat for steps 9 - 12 with \"Get Disliked Playlist Tracks' IDs\"",
-		50, 13 * ofGetHeight() / 15);
-	font_.drawString("14. Press \'s\' to display the data", 50,
+		75, 13 * ofGetHeight() / 15);
+	font_.drawString("14. Press button on right to display the data", 75,
 		14 * ofGetHeight() / 15);
+	histogram_button_->draw();
+	histogram_button_->setPosition(585,
+		14 * ofGetHeight() / 15 - 15);
 
 }
 
@@ -280,16 +326,18 @@ void ofApp::drawHistograms() {
 	plot_.drawHistograms();
 	plot_.endDraw();
 
-	// Drawing Button
+	// Drawing Buttons
 	prediction_button_->draw();
-	prediction_button_->setPosition(ofGetWidth() - 200,
-		ofGetHeight() - 75);
+	prediction_button_->setPosition(ofGetWidth() - 185,
+		ofGetHeight() - 60);
+	start_button_->draw();
+	start_button_->setPosition(40, ofGetHeight() - 60);
 }
 
 void ofApp::drawPredictions() {
 	ofSetColor(ofColor{ 255, 255, 255 });
-	title_font_.drawString("Track Prediction", ofGetWidth() / 2 - 365, ofGetHeight() / 8);
-	font_.drawString("1. In the same Postman collection before, in the search track request\nput the title of the song in the q parameter",
+	title_font_.drawString("Track Prediction", ofGetWidth() / 2 - 375, ofGetHeight() / 8);
+	font_.drawString("1. In the same Postman collection before, find the search track request\nput the title of the song in the q parameter",
 		50, 2 * ofGetHeight() / 9);
 	font_.drawString("2. Make sure you press \"Use Token\" for authentication", 50,
 		3 * ofGetHeight() / 9);
@@ -302,6 +350,16 @@ void ofApp::drawPredictions() {
 		50, 7 * ofGetHeight() / 9);
 	font_.drawString("7. Press send, and you should receive a JSON body of the track features",
 		50, 8 * ofGetHeight() / 9);
+
+	// Drawing Buttons
+	start_button_->draw();
+	start_button_->setPosition(50, 50);
+	histogram_button_->draw();
+	histogram_button_->setPosition(ofGetWidth() - 150, 50);
+}
+
+void ofApp::drawFeatureInputs() {
+
 }
 
 //--------------------------------------------------------------

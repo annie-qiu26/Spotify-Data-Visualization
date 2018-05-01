@@ -41,6 +41,7 @@ public:
 		void drawInstructionScreen();
 		void drawHistograms();
 		void drawPredictions();
+		void drawFeatureInputs();
 private:
 	// Spotify themed colors
 	ofColor black_;
@@ -51,7 +52,11 @@ private:
 	ofTrueTypeFont font_;
 	// From examples
 	ofxDatGuiTextInput* input_;
+
+	// Buttons
 	ofxDatGuiButton* start_button_;
+	ofxDatGuiButton* instruction_button_;
+	ofxDatGuiButton* histogram_button_;
 	ofxDatGuiButton* prediction_button_;
 
 	ofxGPlot plot_;
@@ -70,8 +75,11 @@ private:
 	bool instruction_ = false;
 	bool histogram_ = false;
 	bool prediction_ = false;
-	
+
 	ofImage parameters_;
 	ofImage globals_;
+
+	// Sliders
+	vector<ofxDatGuiSlider*> feature_sliders_;
 
 };
