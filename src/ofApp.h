@@ -51,11 +51,6 @@ private:
 	ofxDatGuiTextInput * input_;
 	ofxDatGuiButton* start_button_;
 
-	// Wait do I need these?
-	ofColor point_color_;
-	bool draw_lines_;
-	int circle_resolution_;
-
 	ofxGPlot plot_;
 	vector<vector<ofxGPoint>> histogram_points_l_;
 	vector<vector<ofxGPoint>> histogram_points_d_;

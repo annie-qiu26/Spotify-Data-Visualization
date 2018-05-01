@@ -157,9 +157,8 @@ TEST_CASE("SVM Train Test") {
 
         accuracy /= modified_dataset.size();
 
-        cout << accuracy << endl;
         // Know prediction isn't random
-        REQUIRE(accuracy > 0.75);
+        REQUIRE(accuracy > 0.85);
 
 }
 

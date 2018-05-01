@@ -169,7 +169,6 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 	cout << e.target->getLabel() << " was clicked!" << endl;
 	start_ = false;
 	instruction_ = true;
-
 }
 
 //--------------------------------------------------------------
@@ -265,6 +264,12 @@ void ofApp::drawHistograms() {
 
 }
 
+void ofApp::drawPredictions() {
+	ofSetColor(ofColor{ 255, 255, 255 });
+	font_.drawString("Track Prediction", ofGetWidth() / 2, ofGetHeight() / 8);
+	font_.drawString("")
+}
+
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 	if (histogram_ && key == OF_KEY_RIGHT) {
@@ -281,10 +286,13 @@ void ofApp::keyPressed(int key){
 		}
 		histogramUpdate();
 	}
-	//Temp fix
-	else if (key == 's') {
+	else if (key == 's' && instruction_) {
 		histogram_ = true;
 		instruction_ = false;
+	}
+	else if (key == 'p' && histogram_) {
+		histogram_ = false;
+		prediction_ = true;
 	}
 
 }

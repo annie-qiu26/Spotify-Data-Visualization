@@ -1,28 +1,24 @@
 # Project Proposal
 ## General Summary
-I'm planning to use Spotify's API to find data on top artists played and top
-artists played based on user. I'm also taking into account the popularity of
-each of their songs and albums. Given this data, I want to use openFrameworks
-to display the data in a visually appeasing way. Users can search for playlists
-and the application will summarize the type of music and popularity of the
-artists. Then I want to artistically express the data with an interactive feature
-for users. They can analyze their data and click on an artist "bubble" to listen
-to one of their songs and get more statistics about them. To play songs on the
-application, users will need to authenticate their accounts. Otherwise, I can
-include popular artists' songs as .mp3 files in the data folder that can play
-as well.
+I'm planning to use Spotify's API to find data on top tracks played based on user. 
+I also want users to give me a playlist of songs they don't like, so
+I can compare the different styles of songs they liked. Given this data, 
+I want to use openFrameworks to display the data in a visually appeasing way. Users can search for playlists
+and the application will summarize the type of music and the audio feautres of 
+their songs. Then I want to artistically express the data with an interactive feature
+for users. They can analyze their data and then input another set of audio features
+of an unknown track, and my application will predict whether they'll like the song
+or not.
 
 ## Libraries
 I'll be using openFrameworks for the interactive windowed application that
 allows users to understand their data and other music data from Spotify. To get
 this information I'm planning to use [Spotify's API](https://developer.spotify.com/web-api/)
-and [C++ Rest SDK](https://github.com/Microsoft/cpprestsdk) to make HTTP requests
+and Postman to simulate HTTP requests for the user
 and get JSON data from Spotify. Then I'll use [JsonCpp](https://github.com/open-source-parsers/jsoncpp)
 to parse the data and get the relevant information such as artist names, album/song names, popularity,
-and other data. Using openFrameworks, I'll output the information in proportionally
-sized colored artist "bubbles", which will basically just float around the screen
-and the size will be based on an algorithm of popularity relative to the playlist
-or in general.
+and other data. Using openFrameworks, I'll output the information in a set of
+histograms, which users can navigate with left and right keys.
 
 ## Background
 I've looked in Spotify's API before, but I was using Python to parse through
@@ -38,3 +34,13 @@ background music tuned to their music taste. I also want to add in a feature
 where all their favorite artists are from in an interactive map on the openFrameworks
 application. Lastly, I hope I can visualize sound waves based on the type of music
 for an extra meditative feature.
+
+## Changes
+Instead of looking at data about the artist, I decided to use information about the tracks
+because I found that each track has a lot of cool features that describe it such as
+"Danceability" or "Instrumentalness". Then I want users to understand more about their
+music preferences, so I showed them the differences between their liked songs' features and
+disliked songs' features in histograms. I also decided to add in a prediction feature, which takes
+in their playlists' data and figure out whether the user will like a song or not based on the
+given features.
+

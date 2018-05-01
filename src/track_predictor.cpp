@@ -28,7 +28,7 @@ void TrackPredictor::SVMTrain(vector<vector<double>> dataset) {
         fill(weights_a_.begin(), weights_a_.end(), 0);
 
         for (int i = 0; i < epoch_; i++) {
-                double steplength = 1.0 / (3 + i);
+                double steplength = 1.0 / (3.0 + i);
                 double lambda = 0.1;
                 for (int j = 0; j < steps_; j++) {
                         // Generate a random number to choose a sample
@@ -39,13 +39,12 @@ void TrackPredictor::SVMTrain(vector<vector<double>> dataset) {
                                 actual_label = 1;
                         }
                         // Update weights
-                        //cout << actual_label * (DotProduct(weights_a_, dataset[i]) + bias_b_) << endl;
-                        if (actual_label * (DotProduct(weights_a_, dataset[i]) + bias_b_) >= 1) {
+                        if (actual_label * (DotProduct(weights_a_, dataset[random_index]) + bias_b_) >= 1) {
                                 weights_a_ = UpdateWeights(weights_a_, lambda, steplength);
                         } else {
                                 weights_a_ = UpdateWeights(weights_a_, lambda, steplength);
                                 // Multiply by -1 to inverse subtraction
-                                weights_a_ = MatrixScalarSubtraction(weights_a_,  dataset[i],
+                                weights_a_ = MatrixScalarSubtraction(weights_a_,  dataset[random_index],
                                         actual_label * -1, steplength);
                                 bias_b_ += steplength*actual_label;
                         }
