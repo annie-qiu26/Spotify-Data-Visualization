@@ -9,6 +9,7 @@ void ofApp::setup() {
 	ofSetWindowTitle("Spotify Visualization");
 	ofBackground(black_);
 	font_.load("montserrat/Montserrat-Black.ttf", 14);
+	title_font_.load("montserrat/Montserrat-Bold.ttf", 72);
 
 	// Setting up data to used
 	ifstream infile0("../data/liked_songs_features.json");
@@ -41,7 +42,7 @@ void ofApp::setup() {
 
 	setupGUI();
 
-// Reference from ofxGrafica Histogram Example
+	// Reference from ofxGrafica Histogram Example
 	int start_limit = 0;
 	int end_limit = 100;
 	histogram_points_l_ = calculateHistograms(standardized_dataset, start_limit, end_limit,
@@ -50,9 +51,10 @@ void ofApp::setup() {
 	end_limit = standardized_dataset.size();
 	histogram_points_d_ = calculateHistograms(standardized_dataset, start_limit, end_limit,
 		means, stds);
-	histogram_titles_ = setupTitles(standardized_dataset);
 
-	setupPlot();
+
+	setupTitles(standardized_dataset);
+	setupHistograms();
 }
 
 void ofApp::setupColors() {
@@ -69,21 +71,24 @@ void ofApp::setupColors() {
 	grey_.b = 130;
 }
 
-void ofApp::setupPlot() {
-	plot_.setPos(ofGetWidth() / 2 - 75, ofGetHeight() / 2 - 150);
-	plot_.setDim(900, 500);
-	plot_.setXLim(-4, 4);
+void ofApp::setupHistograms() {
+	// Code derived from: ofxGrafica example
+	plot_.setPos(ofGetWidth() / 2 - 250, ofGetHeight() / 2 - 250);
+	plot_.setDim(1200, 700);
+	plot_.setFontName("montserrat/Montserrat-Black.ttf");
 
 	// Setting title properties
+	plot_.getTitle().setFontName("montserrat/Montserrat-Black.ttf");
 	plot_.setTitleText(histogram_titles_[current_index_]);
 	plot_.getTitle().setFontSize(24);
+	plot_.getTitle().setFontColor(ofColor(255, 255, 255));
 
 	// Setting axis properties
 	plot_.getYAxis().getAxisLabel().setText("N");
 	plot_.getYAxis().getAxisLabel().setRotate(false);
-	plot_.getYAxis().setFontColor({ ofColor(255, 255, 255, 100) });
+	plot_.getYAxis().setFontColor({ ofColor(255, 255, 255) });
 	plot_.getYAxis().setFontSize(18);
-	plot_.getXAxis().setFontColor({ ofColor(255, 255, 255, 100) });
+	plot_.getXAxis().setFontColor({ ofColor(255, 255, 255) });
 	plot_.getXAxis().setFontSize(18);
 
 	// Setting points and layers
@@ -107,25 +112,27 @@ void ofApp::setupGUI() {
 	input_ = new ofxDatGuiTextInput("SEARCH", "Type Something Here");
 	input_->onTextInputEvent(this, &ofApp::onTextInputEvent);
 	input_->setWidth(800, .2);
-	input_->setPosition(ofGetWidth() / 2 - input_->getWidth() / 2, 650);
+	input_->setPosition(ofGetWidth() / 2 + 50, 850);
 
 	start_button_ = new ofxDatGuiButton("Start");
 	start_button_->onButtonEvent(this, &ofApp::onButtonEvent);
 	start_button_->setWidth(150);
 	start_button_->setStripeColor(green_);
 
+	prediction_button_ = new ofxDatGuiButton("Predictions");
+	prediction_button_->onButtonEvent(this, &ofApp::onButtonEvent);
+	prediction_button_->setWidth(150);
+	prediction_button_->setStripeColor(green_);
+
 	parameters_.load("parameters.png");
 	globals_.load("globals.png");
 }
 
-vector<string> ofApp::setupTitles(vector<vector<pair<string, double>>> dataset) {
-	vector<string> titles;
+void ofApp::setupTitles(vector<vector<pair<string, double>>> dataset) {
 	// just take the first sample for titles
 	for (int i = 0; i < dataset[0].size(); i++) {
-		titles.push_back(dataset[0][i].first);
+		histogram_titles_.push_back(dataset[0][i].first);
 	}
-	return titles;
-
 }
 
 vector<vector<ofxGPoint>> ofApp::calculateHistograms(vector<vector<pair<string, double>>> dataset,
@@ -149,8 +156,8 @@ vector<vector<ofxGPoint>> ofApp::calculateHistograms(vector<vector<pair<string, 
 			}
 		}
 		for (int i = 0; i < num_bins; i++) {
-			histogram_points[feature].emplace_back((i + 0.5) * bin_size - 3 /* * stds[feature]
-				+ means[feature] */, count_in_bins[i]);
+			histogram_points[feature].emplace_back(((i + 0.5) * bin_size - 3) * stds[feature]
+				+ means[feature], count_in_bins[i]);
 		}
 	}
 	return histogram_points;
@@ -158,23 +165,37 @@ vector<vector<ofxGPoint>> ofApp::calculateHistograms(vector<vector<pair<string, 
 
 void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 {
-	// text input events carry the text of the input field //
-	cout << "From Event Object: " << e.text << endl;
-	// although you can also retrieve it from the event target //
-	cout << "From Event Target: " << e.target->getText() << endl;
+	string target = e.text;
+	transform(target.begin(), target.end(), target.begin(), ::tolower);
+	for (int i = 0; i < histogram_titles_.size(); i++) {
+		// Code derived from:
+		// http://thispointer.com/implementing-a-case-insensitive-stringfind-in-c/
+		string title = histogram_titles_[i];
+		transform(title.begin(), title.end(), title.begin(), ::tolower);
+		if (title.find(target) != string::npos) {
+			current_index_ = i;
+			histogramUpdate();
+		}
+	}
 }
 
 void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 {
-	cout << e.target->getLabel() << " was clicked!" << endl;
-	start_ = false;
-	instruction_ = true;
+	if (start_) {
+		start_ = false;
+		instruction_ = true;
+	}
+	else {
+		histogram_ = false;
+		prediction_ = true;
+	}
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
 	input_->update();
 	start_button_->update();
+	prediction_button_->update();
 }
 
 //--------------------------------------------------------------
@@ -189,16 +210,14 @@ void ofApp::draw() {
 		drawHistograms();
 	}
 	else if (prediction_) {
-		// drawPredictions();
+		drawPredictions();
 	}
 }
 
 void ofApp::drawStartScreen() {
 	// Drawing Title
 	ofSetColor(ofColor{ 255, 255, 255 });
-	ofTrueTypeFont title_font;
-	title_font.load("montserrat/Montserrat-Bold.ttf", 72);
-	title_font.drawString("Spotify Data\nVisualization", ofGetWidth() / 2 - 318, 2 * ofGetHeight() / 5);
+	title_font_.drawString("Spotify Data\nVisualization", ofGetWidth() / 2 - 318, 2 * ofGetHeight() / 5);
 
 	// Drawing Button
 	start_button_->draw();
@@ -209,9 +228,9 @@ void ofApp::drawStartScreen() {
 void ofApp::drawInstructionScreen() {
 	// Drawing Instructions
 	ofSetColor(ofColor{ 255, 255, 255 });
-	font_.drawString("1. Download the Postman extension on Google Chrome", 50, 
+	font_.drawString("1. Download the Postman extension on Google Chrome", 50,
 		ofGetHeight() / 15);
-	string link = "https://www.getpostman.com/collections/90c7c17db56eb15c0e5b";
+	string link = "https://www.getpostman.com/collections/47dc5dade17a715c89b2";
 	font_.drawString("2. Click import, and then \"import from link\" and paste in this link:\n" + link,
 		50, 2 * ofGetHeight() / 15);
 	font_.drawString("3. Once you get the collection, change the Authorization type to OAuth2",
@@ -261,13 +280,28 @@ void ofApp::drawHistograms() {
 	plot_.drawHistograms();
 	plot_.endDraw();
 
-
+	// Drawing Button
+	prediction_button_->draw();
+	prediction_button_->setPosition(ofGetWidth() - 200,
+		ofGetHeight() - 75);
 }
 
 void ofApp::drawPredictions() {
 	ofSetColor(ofColor{ 255, 255, 255 });
-	font_.drawString("Track Prediction", ofGetWidth() / 2, ofGetHeight() / 8);
-	font_.drawString("")
+	title_font_.drawString("Track Prediction", ofGetWidth() / 2 - 365, ofGetHeight() / 8);
+	font_.drawString("1. In the same Postman collection before, in the search track request\nput the title of the song in the q parameter",
+		50, 2 * ofGetHeight() / 9);
+	font_.drawString("2. Make sure you press \"Use Token\" for authentication", 50,
+		3 * ofGetHeight() / 9);
+	font_.drawString("3. Once you press send, you should receive a JSON body", 50, 4 * ofGetHeight() / 9);
+	font_.drawString("4. Find the ID of the track you're looking for. It should be above \"is_local\", \nwhich is right above the song's name",
+		50, 5 * ofGetHeight() / 9);
+	font_.drawString("5. In \"Globals\", paste in the track ID in the track_id parameter", 50,
+		6 * ofGetHeight() / 9);
+	font_.drawString("6. In \"Get Audio Track Features\", make sure to press \"Use Token\" for authentication",
+		50, 7 * ofGetHeight() / 9);
+	font_.drawString("7. Press send, and you should receive a JSON body of the track features",
+		50, 8 * ofGetHeight() / 9);
 }
 
 //--------------------------------------------------------------
@@ -290,10 +324,6 @@ void ofApp::keyPressed(int key){
 		histogram_ = true;
 		instruction_ = false;
 	}
-	else if (key == 'p' && histogram_) {
-		histogram_ = false;
-		prediction_ = true;
-	}
 
 }
 
@@ -301,6 +331,7 @@ void ofApp::histogramUpdate() {
 	plot_.setTitleText(histogram_titles_[current_index_]);
 	plot_.setPoints(histogram_points_l_[current_index_]);
 	plot_.getLayer("Disliked Data").setPoints(histogram_points_d_[current_index_]);
+	plot_.setXLim(lower_bounds_[current_index_], upper_bounds_[current_index_]);
 }
 
 //--------------------------------------------------------------

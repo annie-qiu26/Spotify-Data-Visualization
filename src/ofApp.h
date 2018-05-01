@@ -25,12 +25,13 @@ public:
 		void gotMessage(ofMessage msg);
 
 		void setupColors();
-		void setupPlot();
+		void setupHistograms();
 		void setupGUI();
 		vector<vector<ofxGPoint>> calculateHistograms(vector<vector<pair<string, double>>> dataset,
 			int start_limit, int end_limit, vector<double> means, vector<double> stds);
 		void histogramUpdate();
-		vector<string> setupTitles(vector<vector<pair<string, double>>> dataset);
+		void setupTitles(vector<vector<pair<string, double>>> dataset);
+		void setupBounds(vector<double> means, vector<double> stds);
 
 		void onButtonEvent(ofxDatGuiButtonEvent e);
 		void onTextInputEvent(ofxDatGuiTextInputEvent e);
@@ -46,15 +47,20 @@ private:
 	ofColor green_;
 	ofColor grey_;
 
+	ofTrueTypeFont title_font_;
 	ofTrueTypeFont font_;
 	// From examples
-	ofxDatGuiTextInput * input_;
+	ofxDatGuiTextInput* input_;
 	ofxDatGuiButton* start_button_;
+	ofxDatGuiButton* prediction_button_;
 
 	ofxGPlot plot_;
 	vector<vector<ofxGPoint>> histogram_points_l_;
 	vector<vector<ofxGPoint>> histogram_points_d_;
 	vector<string> histogram_titles_;
+
+	vector<double> lower_bounds_;
+	vector<double> upper_bounds_;
 
 	int current_index_ = 0;
 	int feature_size_;
