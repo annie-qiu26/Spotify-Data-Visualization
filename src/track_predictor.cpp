@@ -1,4 +1,6 @@
 #include "track_predictor.h"
+// For debugging
+#include <iostream>
 
 TrackPredictor::TrackPredictor(int epoch, int steps) {
         epoch_ = epoch;
@@ -16,14 +18,18 @@ vector<vector<double>> TrackPredictor::RemoveTitles(vector<vector<pair<string, d
 }
 
 void TrackPredictor::SVMTrain(vector<vector<double>> dataset) {
+        if (dataset.size() == 0) {
+                throw "Invalid Dataset Given";
+        }
+
         // Start with 0 weights and 0
-        bias_b_ = 0;
-        weights_a_.reserve(dataset.size());
+        bias_b_ = 0.0;
+        weights_a_.resize(dataset.size());
         fill(weights_a_.begin(), weights_a_.end(), 0);
 
         for (int i = 0; i < epoch_; i++) {
-                double steplength = 1 / (3 + i);
-                double lambda = 0.0001;
+                double steplength = 1.0 / (3 + i);
+                double lambda = 0.1;
                 for (int j = 0; j < steps_; j++) {
                         // Generate a random number to choose a sample
                         unsigned int random_index = rand() % dataset.size();
@@ -33,6 +39,7 @@ void TrackPredictor::SVMTrain(vector<vector<double>> dataset) {
                                 actual_label = 1;
                         }
                         // Update weights
+                        //cout << actual_label * (DotProduct(weights_a_, dataset[i]) + bias_b_) << endl;
                         if (actual_label * (DotProduct(weights_a_, dataset[i]) + bias_b_) >= 1) {
                                 weights_a_ = UpdateWeights(weights_a_, lambda, steplength);
                         } else {
@@ -44,6 +51,17 @@ void TrackPredictor::SVMTrain(vector<vector<double>> dataset) {
                         }
                 }
         }
+}
+
+int TrackPredictor::Classify(vector<double> sample) {
+        double prediction = DotProduct(sample, weights_a_);
+        if (prediction > 0) {
+                return 1;
+        } else if (prediction < 0) {
+                return -1;
+        }
+        // This is very unlikely to happen
+        return 0;
 }
 
 double TrackPredictor::DotProduct(vector<double> a, vector<double> b) {
@@ -68,4 +86,12 @@ vector<double> TrackPredictor::MatrixScalarSubtraction(vector<double> a, vector<
                 subtracted_matrix[i] -= b[i] * c * d;
         }
         return subtracted_matrix;
+}
+
+vector<double> TrackPredictor::GetWeights() {
+        return weights_a_;
+}
+
+double TrackPredictor::GetBias() {
+        return bias_b_;
 }

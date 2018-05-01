@@ -2,6 +2,7 @@
 #include <jsoncpp/json/json.h>
 #include <string>
 #include <vector>
+#include "audio_features.h"
 
 using namespace std;
 

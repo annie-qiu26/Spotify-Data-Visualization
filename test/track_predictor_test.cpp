@@ -2,12 +2,16 @@
 #include "catch.hpp"
 
 #include "../src/track_predictor.h"
+#include "../src/top_tracks.h"
+
+// For debugging
+#include <iostream>
 
 using namespace std;
 
-TrackPredictor test_obj(100, 50);
+TrackPredictor test_obj(200, 100);
 
-TEST_CASE("Remove Titles") {
+TEST_CASE("Remove Titles Test") {
         vector<pair<string, double>> dataset;
 	vector<pair<string, double>> dataset1;
 
@@ -29,6 +33,14 @@ TEST_CASE("Remove Titles") {
         REQUIRE(new_dataset[1][1] == 4);
         REQUIRE(new_dataset[1][2] == 5);
 
+}
+
+TEST_CASE("Remove Titles Empty Test") {
+        vector<vector<pair<string, double>>> datasets;
+
+        vector<vector<double>> new_dataset = test_obj.RemoveTitles(datasets);
+
+        REQUIRE(new_dataset.size() == 0);
 }
 
 
@@ -60,7 +72,15 @@ TEST_CASE("Update Weights Test") {
         REQUIRE(subtracted_matrix[2] == 18);
 }
 
-TEST_CASE("Matrix Scalar Subtraction") {
+TEST_CASE("Update Weights Empty Test") {
+        vector<double> a;
+
+        vector<double> subtracted_matrix = test_obj.UpdateWeights(a, 0.5, 0.8);
+
+        REQUIRE(subtracted_matrix.size() == 0);
+}
+
+TEST_CASE("Matrix Scalar Subtraction Test") {
         vector<double> a{5, 8, 30};
         vector<double> b{6, 7, 8};
 
@@ -69,4 +89,81 @@ TEST_CASE("Matrix Scalar Subtraction") {
         REQUIRE(subtracted_matrix[0] == 7.4);
         REQUIRE(subtracted_matrix[1] == 10.8);
         REQUIRE(subtracted_matrix[2] == 33.2);
+}
+
+TEST_CASE("Matrix Scalar Subtraction Empty Test") {
+        vector<double> a{0, 0, 0};
+        vector<double> b{6, 7, 8};
+
+        vector<double> subtracted_matrix = test_obj.MatrixScalarSubtraction(a, b, -0.5, 0.8);
+
+        REQUIRE(subtracted_matrix[0] == Approx(2.4));
+        REQUIRE(subtracted_matrix[1] == Approx(2.8));
+        REQUIRE(subtracted_matrix[2] == Approx(3.2));
+
+}
+
+vector<vector<double>> modified_dataset;
+
+void SetUpSVM() {
+        Json::Reader reader;
+        Json::Value audio;
+	ifstream infile0("../data/liked_songs_features.json");
+        ifstream infile1("../data/disliked_songs_features.json");
+        reader.parse(infile0, audio);
+        TopTracks track_test_obj;
+
+        // Getting the data set into vectors
+        vector<vector<pair<string, double>>> liked_dataset
+                = track_test_obj.GetDataset(audio["audio_features"], 100);
+
+        reader.parse(infile1, audio);
+        vector<vector<pair<string, double>>> disliked_dataset
+                = track_test_obj.GetDataset(audio["audio_features"], 100);
+
+        // Combining the dataset
+        vector<vector<pair<string, double>>> combined_dataset = liked_dataset;
+        combined_dataset.insert(combined_dataset.end(), disliked_dataset.begin(),
+                disliked_dataset.end());
+
+        vector<double> means = track_test_obj.CalculateMeans(combined_dataset);
+        vector<double> stds = track_test_obj.CalculateStds(combined_dataset);
+        vector<vector<pair<string, double>>> standardized_dataset
+        		= track_test_obj.StandardizeFeatures(combined_dataset);
+
+        // Remove pairs and convert to doubles
+        modified_dataset = test_obj.RemoveTitles(standardized_dataset);
+}
+
+TEST_CASE("SVM Train Test") {
+        SetUpSVM();
+
+        test_obj.SVMTrain(modified_dataset);
+
+        // Get accuracy of prediction, liked songs are in the first half
+        double accuracy = 0.0;
+
+        for (unsigned int i = 0; i < modified_dataset.size(); i++) {
+                if (i < modified_dataset.size() / 2) {
+                        if (test_obj.Classify(modified_dataset[i]) == 1) {
+                                accuracy++;
+                        }
+                } else {
+                        if (test_obj.Classify(modified_dataset[i]) == -1) {
+                                accuracy++;
+                        }
+                }
+        }
+
+        accuracy /= modified_dataset.size();
+
+        cout << accuracy << endl;
+        // Know prediction isn't random
+        REQUIRE(accuracy > 0.75);
+
+}
+
+TEST_CASE("SVM Train Empty Test") {
+        vector<vector<double>> dataset;
+        REQUIRE_THROWS(test_obj.SVMTrain(dataset));
 }
