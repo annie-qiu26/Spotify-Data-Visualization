@@ -386,20 +386,20 @@ void ofApp::drawInstruction() {
 		75, 5 * ofGetHeight() / 15);
 	font_.drawString("6. Request token, sign in to Spotify and accept conditions, and then click use token",
 		75, 6 * ofGetHeight() / 15);
-	font_.drawString("7. Press send for \"Find Playlist IDs\" and it should show a JSON body",
+	font_.drawString("7. Press send for \"Find Playlist IDs\", and it should show a JSON body",
 		75, 7 * ofGetHeight() / 15);
-	font_.drawString("8. Find the playlist IDs of your Liked playlist and Disliked playlist\nNote the ids are above the name of the playlists",
+	font_.drawString("8. Find the playlist IDs of your Liked playlist and Disliked playlist\nNote the ID's are above the name of the playlists",
 		75, 8 * ofGetHeight() / 15);
 	font_.drawString("9. Go to the \"Get Liked Playlist Tracks' IDs\" GET request, and click on\n\"Manage Environment\" in settings",
 		75, 9 * ofGetHeight() / 15);
 	font_.drawString("10. Click on \"Globals\" and fill out the parameters shown on the right",
 		75, 10 * ofGetHeight() / 15);
 	globals_.draw(3 * ofGetWidth() / 5 - 25, 550, 600, 400);
-	font_.drawString("11. Press send and you should receive another JSON body", 75,
+	font_.drawString("11. Press send, and you should receive another JSON body", 75,
 		11 * ofGetHeight() / 15);
 	font_.drawString("12. Copy the JSON body in \"liked_songs_features\" file in the data folder",
 		75, 12 * ofGetHeight() / 15);
-	font_.drawString("13. Repeat for steps 9 - 12 with \"Get Disliked Playlist Tracks' IDs\"",
+	font_.drawString("13. Repeat steps 9 - 12 with \"Get Disliked Playlist Tracks' IDs\"",
 		75, 13 * ofGetHeight() / 15);
 	font_.drawString("14. Press button on right to display the data", 75,
 		14 * ofGetHeight() / 15);
@@ -448,14 +448,14 @@ void ofApp::drawPredictions() {
 	title_font_.drawString("Track Prediction", ofGetWidth() / 2 - 375, ofGetHeight() / 10);
 
 	// Drawing Instructions
-	font_.drawString("1. In the same Postman collection before, find the search track request\nput the title of the song in the q parameter",
+	font_.drawString("1. In the same Postman collection before, find the search track request\nand put the title of the song in the q parameter",
 		50, 2 * ofGetHeight() / 10);
 	font_.drawString("2. Make sure you press \"Use Token\" for authentication", 50,
 		3 * ofGetHeight() / 10);
 	font_.drawString("3. Once you press send, you should receive a JSON body", 50, 4 * ofGetHeight() / 10);
 	font_.drawString("4. Find the ID of the track you're looking for. It should be above \"is_local\", \nwhich is right above the song's name",
 		50, 5 * ofGetHeight() / 10);
-	font_.drawString("5. In \"Globals\", paste in the track ID in the track_id parameter", 50,
+	font_.drawString("5. In \"Globals\", paste in the ID in the track_id parameter", 50,
 		6 * ofGetHeight() / 10);
 	font_.drawString("6. In \"Get Audio Track Features\", make sure to press \"Use Token\" for authentication",
 		50, 7 * ofGetHeight() / 10);
