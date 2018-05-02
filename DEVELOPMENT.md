@@ -22,24 +22,31 @@ temporarily got data from Spotfiy's web console and parsed the JSON data to get
 id and audio features of tracks from my Liked and Disliked Playlist. Then I played
 around with two addons for openFrameworks ([ofxDatGui](https://braitsch.github.io/ofxDatGui/)
 and [ofxGrafica](https://github.com/jagracar/ofxGrafica)]. I plotted my data
-with a histogram and added a textfield to get user input. 
+with a histogram and added a textfield to get user input.
 
 ## Creating Histograms, Standard Deviation Issue : 04/24/18
 Right now, I'm working on creating histograms with my sample datasets of my liked and
-disliked songs. I added overlapping layers to show the differenes between the two sets.
+disliked songs. I added overlapping layers to show the differences between the two sets.
 I realized that my standard deviation has overflow problems, so I need to fix that. I'll
-probably continue working on the histograms for the next couple days to make it look 
+probably continue working on the histograms for the next couple days to make it look
 nice on the openFrameworks application.
 
 ## Working with the API using Postman : 04/26/18
 Instead of using the C++ Rest SDK or libcurl library, I decided to use Postman and have the
-user go to a link that has my collection of requests to give me access to their playlists and 
-tracks' ids. Then I'll have the user place the JSON data into the corresponding text file 
+user go to a link that has my collection of requests to give me access to their playlists and
+tracks' ids. Then I'll have the user place the JSON data into the corresponding text file
 called liked_songs_features.json and disliked_songs_features.json. I'll give instructions on this
 in the README.md and in the application.
 
 ## Drawing Screens in Application : 04/29/18
-Currently, I'm working on the graphics of the openFrameworks application. I'm laying out the four 
-different screens people will see, which are the start, instruction, histogram, and predictor 
+Currently, I'm working on the graphics of the openFrameworks application. I'm laying out the four
+different screens people will see, which are the start, instruction, histogram, and prediction
 screens. I'm using the Montserrat font, which looks like Spotify's font, and then mimicking their
 colors as well. I've added buttons to help with navigation.
+
+## Finished : 05/01/18
+I've written all the instructions in how to use Postman to make HTTP requests with Spotify's API. Then,
+I've also written instructions on how to get track's features that can be used in the prediction
+screens. I've added sliders too for a user-friendly way to input the features. They can also type in
+the numbers as well. To finish things off, I just need to update the README.md to inform the user
+the tools they need to build the project.

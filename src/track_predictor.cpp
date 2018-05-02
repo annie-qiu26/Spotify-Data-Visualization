@@ -1,7 +1,8 @@
 #include "track_predictor.h"
-// For debugging
-#include <iostream>
 
+// Function that takes away the feature names in
+// the vector of pairs and returns a 2D vector
+// of doubles
 vector<vector<double>> TrackPredictor::RemoveTitles(vector<vector<pair<string, double>>> dataset) {
         vector<vector<double>> new_dataset(dataset.size());
         for (unsigned int i = 0; i < dataset.size(); i++) {
@@ -12,6 +13,8 @@ vector<vector<double>> TrackPredictor::RemoveTitles(vector<vector<pair<string, d
         return new_dataset;
 }
 
+// Function that uses a Support Vector Training algorithm to help
+// classify songs into whether a user likes or dislikes the song
 void TrackPredictor::SVMTrain(vector<vector<double>> dataset) {
         if (dataset.size() == 0) {
                 throw "Invalid Dataset Given";
@@ -47,6 +50,8 @@ void TrackPredictor::SVMTrain(vector<vector<double>> dataset) {
         }
 }
 
+// Function to predict whether user will like song
+// or not. 1 is like, -1 is dislike, 0 will rarely occur
 int TrackPredictor::Classify(vector<double> sample) {
         double prediction = DotProduct(sample, weights_a_);
         if (prediction > 0) {
@@ -58,6 +63,8 @@ int TrackPredictor::Classify(vector<double> sample) {
         return 0;
 }
 
+// Helper function that takes the dot product of two
+// vector
 double TrackPredictor::DotProduct(vector<double> a, vector<double> b) {
         double product = 0.0;
         for (unsigned int i = 0; i < a.size(); i++) {
@@ -66,6 +73,8 @@ double TrackPredictor::DotProduct(vector<double> a, vector<double> b) {
         return product;
 }
 
+// Helper function that changes the weights based on
+// training data
 vector<double> TrackPredictor::UpdateWeights(vector<double> a, double b, double c) {
         vector<double> subtracted_matrix = a;
         for (unsigned int i = 0; i < a.size(); i++) {
@@ -74,18 +83,13 @@ vector<double> TrackPredictor::UpdateWeights(vector<double> a, double b, double 
         return subtracted_matrix;
 }
 
-vector<double> TrackPredictor::MatrixScalarSubtraction(vector<double> a, vector<double> b, double c, double d) {
+// Helper function that takes in two vectors and
+// subtracts a scaled vector from another vector.
+vector<double> TrackPredictor::MatrixScalarSubtraction(vector<double> a,
+        vector<double> b, double c, double d) {
         vector<double> subtracted_matrix = a;
         for (unsigned int i = 0; i < a.size(); i++) {
                 subtracted_matrix[i] -= b[i] * c * d;
         }
         return subtracted_matrix;
-}
-
-vector<double> TrackPredictor::GetWeights() {
-        return weights_a_;
-}
-
-double TrackPredictor::GetBias() {
-        return bias_b_;
 }

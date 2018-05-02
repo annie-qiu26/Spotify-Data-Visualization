@@ -4,13 +4,12 @@
 #include "../src/track_predictor.h"
 #include "../src/top_tracks.h"
 
-// For debugging
-#include <iostream>
-
 using namespace std;
 
 TrackPredictor test_obj(200, 100);
 
+// Test cases if titles are successfully removed
+// from the 2D dataset vector
 TEST_CASE("Remove Titles Test") {
         vector<pair<string, double>> dataset;
 	vector<pair<string, double>> dataset1;
@@ -43,7 +42,8 @@ TEST_CASE("Remove Titles Empty Test") {
         REQUIRE(new_dataset.size() == 0);
 }
 
-
+// Test cases to make sure helper functions that manipulate
+// vectors work properly
 TEST_CASE("Dot Product Test") {
         vector<double> a{5, 8, 30};
         vector<double> b{5, 8, 30};
@@ -105,6 +105,8 @@ TEST_CASE("Matrix Scalar Subtraction Empty Test") {
 
 vector<vector<double>> modified_dataset;
 
+// Setting up the data used to train for classification
+// Should have a high accuracy in classification
 void SetUpSVM() {
         Json::Reader reader;
         Json::Value audio;
@@ -135,9 +137,8 @@ void SetUpSVM() {
         modified_dataset = test_obj.RemoveTitles(standardized_dataset);
 }
 
-TEST_CASE("SVM Train Test") {
+TEST_CASE("SVM Train / Classify Test") {
         SetUpSVM();
-
         test_obj.SVMTrain(modified_dataset);
 
         // Get accuracy of prediction, liked songs are in the first half

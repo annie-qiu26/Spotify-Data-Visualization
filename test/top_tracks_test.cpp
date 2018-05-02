@@ -16,6 +16,8 @@ string file_contents2((istreambuf_iterator<char>(infile2)), istreambuf_iterator<
 TopTracks test_obj;
 vector<string> ids;
 
+// Test cases to make sure parsing works as intended
+// as reads in all the IDs of the tracks
 TEST_CASE("Parse to IDs Size Test") {
         ids = test_obj.ParseToIDs(file_contents);
         REQUIRE(ids.size() == 50);
@@ -46,7 +48,6 @@ TEST_CASE("Parse to IDs Playlist Invalid Test") {
         REQUIRE_THROWS(test_obj.ParseToIDsPlaylist(NULL));
 }
 
-//temporary solution
 ifstream infile3("../data/disliked_songs_features.json");
 Json::Reader reader;
 Json::Value audio;
@@ -54,6 +55,8 @@ TopTracks test;
 vector<vector<pair<string, double>>> dataset;
 vector<vector<pair<string, double>>> standardized_dataset;
 
+// Make sure the dataset is successfully put
+// into vectors
 TEST_CASE("Get Dataset Size Test") {
 	reader.parse(infile3, audio);
         dataset = test.GetDataset(audio["audio_features"], 100);
@@ -63,25 +66,25 @@ TEST_CASE("Get Dataset Size Test") {
 TEST_CASE("Get Dataset First Content Test") {
         REQUIRE(dataset[0][0].first == "Danceability");
         REQUIRE(dataset[0][0].second == Approx(0.879));
-        REQUIRE(dataset[0][4].first == "Mode");
-        REQUIRE(dataset[0][4].second == 1);
 }
 
 TEST_CASE("Get Dataset Middle Content Test") {
         REQUIRE(dataset[30][1].first == "Energy");
         REQUIRE(dataset[30][1].second == Approx(0.766));
-        REQUIRE(dataset[30][3].first == "Loudness");
-        REQUIRE(dataset[30][3].second == Approx(-4.788));
+        REQUIRE(dataset[30][2].first == "Loudness");
+        REQUIRE(dataset[30][2].second == Approx(-4.788));
 }
 
 TEST_CASE("Get Dataset End Content Test") {
-        REQUIRE(dataset[99][5].first == "Speechiness");
-        REQUIRE(dataset[99][5].second == Approx(0.322));
-        REQUIRE(dataset[99][6].first == "Acousticness");
-        REQUIRE(dataset[99][6].second == Approx(0.00111));
+        REQUIRE(dataset[99][3].first == "Speechiness");
+        REQUIRE(dataset[99][3].second == Approx(0.322));
+        REQUIRE(dataset[99][4].first == "Acousticness");
+        REQUIRE(dataset[99][4].second == Approx(0.00111));
 }
 
-//Tests to make sure dataset can be standardized correctly
+// Tests to make sure dataset can be standardized correctly
+// with helper functions of calculating means and
+// standard deviations
 TEST_CASE("Calculate Means Test") {
 	vector<pair<string, double>> dataset;
 	vector<pair<string, double>> dataset1;
@@ -211,14 +214,3 @@ TEST_CASE("Standardize Data Empty Test") {
 	= test.StandardizeFeatures(datasets);
 	REQUIRE(standardized_dataset.size() == 0);
 }
-
-//Just for reference purposes
-/* TEST_CASE("Get Standardized Dataset") {
-        vector <vector<pair<string, double>>> standardized_dataset
-	= test.StandardizeFeatures(dataset);
-        for (unsigned int i = 0; i < standardized_dataset.size(); i++) {
-                for (unsigned int j = 0; j < standardized_dataset[i].size(); j++) {
-                        cout << standardized_dataset[i][j].second << endl;
-                }
-        }
-}*/

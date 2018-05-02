@@ -1,16 +1,6 @@
 #include "top_tracks.h"
-//For debugging
-#include <iostream>
 
 using namespace std;
-
-TopTracks::TopTracks() {
-
-}
-
-TopTracks::~TopTracks() {
-
-}
 
 // Takes in json data of top tracks and returns all the
 // track ids in a vector of strings

@@ -1,16 +1,44 @@
 #include "ofApp.h"
-//For debugging
-#include <iostream>
 
+// Function that setups everything in the application
 //--------------------------------------------------------------
 void ofApp::setup() {
 	setupColors();
 
 	ofSetWindowTitle("Spotify Visualization");
 	ofBackground(black_);
-	font_.load("montserrat/Montserrat-Black.ttf", 14);
-	title_font_.load("montserrat/Montserrat-Bold.ttf", 72);
 
+	vector<vector<pair<string, double>>> standardized_dataset =
+		standardizeDataset();
+
+	// First half of dataset are liked songs, second
+	// half are disliked songs.
+	int start_limit = 0;
+	int end_limit = 100;
+	histogram_points_l_ = calculateHistograms(standardized_dataset, start_limit, end_limit,
+		means_, stds_);
+	start_limit = 100;
+	end_limit = standardized_dataset.size();
+	histogram_points_d_ = calculateHistograms(standardized_dataset, start_limit, end_limit,
+		means_, stds_);
+
+	setupGUI();
+	setupTitles(standardized_dataset);
+	setupSliders(means_, stds_);
+	setupBounds(means_, stds_);
+	setupHistograms();
+	setupResultMessages();
+
+	// Gets weights and bias of prediction for SVM classifier
+	vector<vector<double>> modified_dataset =
+		predictor_.RemoveTitles(standardized_dataset);
+	predictor_.SVMTrain(modified_dataset);
+}
+
+// Helper function used to combine liked and disliked
+// songs' datasets and standardizes them
+//--------------------------------------------------------------
+vector<vector<pair<string, double>>> ofApp::standardizeDataset() {
 	// Setting up data to used
 	ifstream infile0("../data/liked_songs_features.json");
 	ifstream infile1("../data/disliked_songs_features.json");
@@ -40,31 +68,11 @@ void ofApp::setup() {
 	vector<vector<pair<string, double>>> standardized_dataset
 		= tracks_obj.StandardizeFeatures(combined_dataset);
 
-	setupGUI();
-
-	// Reference from ofxGrafica Histogram Example
-	int start_limit = 0;
-	int end_limit = 100;
-	histogram_points_l_ = calculateHistograms(standardized_dataset, start_limit, end_limit,
-		means_, stds_);
-	start_limit = 100;
-	end_limit = standardized_dataset.size();
-	histogram_points_d_ = calculateHistograms(standardized_dataset, start_limit, end_limit,
-		means_, stds_);
-
-
-	setupTitles(standardized_dataset);
-	setupSliders(means_, stds_);
-	setupBounds(means_, stds_);
-	setupHistograms();
-	setupResultMessages();
-
-	// Gets weights and bias of prediction for SVM classifier
-	vector<vector<double>> modified_dataset = 
-		predictor_.RemoveTitles(standardized_dataset);
-	predictor_.SVMTrain(modified_dataset);
+	return standardized_dataset;
 }
 
+// Sets up the main colors that mimick Spotify's theme
+//--------------------------------------------------------------
 void ofApp::setupColors() {
 	green_.r = 132;
 	green_.g = 189;
@@ -79,6 +87,9 @@ void ofApp::setupColors() {
 	grey_.b = 130;
 }
 
+// Function used to set features of the histograms such as
+// font, title, and colors
+//--------------------------------------------------------------
 void ofApp::setupHistograms() {
 	// Code derived from: ofxGrafica example
 	plot_.setPos(ofGetWidth() / 2 - 190, ofGetHeight() / 2 - 325);
@@ -121,7 +132,11 @@ void ofApp::setupHistograms() {
 	plot_.activateReset();
 }
 
+// Sets up the graphical interface that involve buttons, test
+// boxes, fonts, etc.
+//--------------------------------------------------------------
 void ofApp::setupGUI() {
+	// Sets up text input for search feature
 	input_ = new ofxDatGuiTextInput("Search", "Type Something Here");
 	input_->onTextInputEvent(this, &ofApp::onTextInputEvent);
 	input_->setWidth(800, .2);
@@ -132,10 +147,17 @@ void ofApp::setupGUI() {
 
 	setupButtons();
 
+	// Loads in pictures
 	parameters_.load("parameters.png");
 	globals_.load("globals.png");
+
+	// Loads in fonts
+	font_.load("montserrat/Montserrat-Black.ttf", 14);
+	title_font_.load("montserrat/Montserrat-Bold.ttf", 72);
 }
 
+// Sets the vector of strings that holds the titles for each histogram
+//--------------------------------------------------------------
 void ofApp::setupTitles(vector<vector<pair<string, double>>> dataset) {
 	// just take the first sample for titles
 	for (int i = 0; i < dataset[0].size(); i++) {
@@ -143,6 +165,19 @@ void ofApp::setupTitles(vector<vector<pair<string, double>>> dataset) {
 	}
 }
 
+// Sets the vectors of doubles that holds the bounds for the
+// X-Axes of the histograms
+//--------------------------------------------------------------
+void ofApp::setupBounds(vector<double> means, vector<double> stds) {
+	for (int i = 0; i < means.size(); i++) {
+		lower_bounds_.push_back(means[i] - 4 * stds[i]);
+		upper_bounds_.push_back(means[i] + 4 * stds[i]);
+	}
+}
+
+// Function used to set button properties such as size,
+// position, and color
+//--------------------------------------------------------------
 void ofApp::setupButtons() {
 	start_button_ = new ofxDatGuiButton("Back to Start");
 	start_button_->onButtonEvent(this, &ofApp::onButtonEvent);
@@ -170,12 +205,13 @@ void ofApp::setupButtons() {
 	get_prediction_button_->setStripeColor(green_);
 }
 
+// Function used to set slider properties such as size,
+// position, and color
+//--------------------------------------------------------------
 void ofApp::setupSliders(vector<double> means, vector<double> stds) {
 	for (int i = 0; i < means.size(); i++) {
-		ofxDatGuiSlider* slider = new ofxDatGuiSlider(histogram_titles_[i], 
+		ofxDatGuiSlider* slider = new ofxDatGuiSlider(histogram_titles_[i],
 			means[i] - 5 * stds[i], means[i] + 5 * stds[i], means[i]);
-		cout << means[i] << endl;
-		cout << stds[i] << endl;
 		slider->setPrecision(4, false);
 		slider->setPosition(ofGetWidth() + 185, i * ofGetHeight() / 12 + 200);
 		slider->setStripeColor(green_);
@@ -187,13 +223,9 @@ void ofApp::setupSliders(vector<double> means, vector<double> stds) {
 	}
 }
 
-void ofApp::setupBounds(vector<double> means, vector<double> stds) {
-	for (int i = 0; i < means.size(); i++) {
-		lower_bounds_.push_back(means[i] - 4 * stds[i]);
-		upper_bounds_.push_back(means[i] + 4 * stds[i]);
-	}
-}
-
+// Function used to set up default like/dislike messages
+// in classifying songs for users
+//--------------------------------------------------------------
 void ofApp::setupResultMessages() {
 	result_messages_.push_back("That's an awesome song!");
 	result_messages_.push_back("I'll listen to that if I were you");
@@ -203,6 +235,9 @@ void ofApp::setupResultMessages() {
 	result_messages_.push_back("I would mute that song");
 }
 
+// Function used to calculate frequencies in bins based on
+// the given dataset, sets the points for the histograms
+//--------------------------------------------------------------
 vector<vector<ofxGPoint>> ofApp::calculateHistograms(vector<vector<pair<string, double>>> dataset,
 	int start_limit, int end_limit, vector<double> means, vector<double> stds) {
 
@@ -224,13 +259,17 @@ vector<vector<ofxGPoint>> ofApp::calculateHistograms(vector<vector<pair<string, 
 			}
 		}
 		for (int i = 0; i < num_bins; i++) {
-			histogram_points[feature].emplace_back(((i + 0.5) * bin_size - 3) * stds[feature]
-				+ means[feature], count_in_bins[i]);
+			// Code derived from: ofxGrafica example
+			histogram_points[feature].emplace_back(((i + 0.5) * bin_size - 3)
+				* stds[feature] + means[feature], count_in_bins[i]);
 		}
 	}
 	return histogram_points;
 }
 
+// GUI function that responds when a user inputs text, user can
+// search for the histogram that they want to display
+//--------------------------------------------------------------
 void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 {
 	string target = e.text;
@@ -247,6 +286,8 @@ void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 	}
 }
 
+// GUI function that responds when a user clicks a button
+//--------------------------------------------------------------
 void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 {
 	string target = e.target->getLabel();
@@ -279,6 +320,7 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 	}
 }
 
+// openFrameworks default update function
 //--------------------------------------------------------------
 void ofApp::update(){
 	input_->update();
@@ -292,13 +334,15 @@ void ofApp::update(){
 	}
 }
 
+// Chooses which screen to draw on the screen; there are four:
+// start, instruction, histogram, prediction
 //--------------------------------------------------------------
 void ofApp::draw() {
 	if (start_) {
-		drawStartScreen();
+		drawStart();
 	}
 	else if (instruction_) {
-		drawInstructionScreen();
+		drawInstruction();
 	}
 	else if (histogram_) {
 		drawHistograms();
@@ -308,7 +352,10 @@ void ofApp::draw() {
 	}
 }
 
-void ofApp::drawStartScreen() {
+// Function that displays the start screen of the application
+// to the user
+//--------------------------------------------------------------
+void ofApp::drawStart() {
 	// Drawing Title
 	ofSetColor(ofColor{ 255, 255, 255 });
 	title_font_.drawString("Spotify Data\nVisualization", ofGetWidth() / 2 - 318, 2 * ofGetHeight() / 5);
@@ -319,7 +366,10 @@ void ofApp::drawStartScreen() {
 		3 * ofGetHeight() / 5 + 20);
 }
 
-void ofApp::drawInstructionScreen() {
+// Function that displays the instruction screen of the application
+// to the user
+//--------------------------------------------------------------
+void ofApp::drawInstruction() {
 	// Drawing Instructions
 	ofSetColor(ofColor{ 255, 255, 255 });
 	font_.drawString("1. Download the Postman extension on Google Chrome", 75,
@@ -353,12 +403,17 @@ void ofApp::drawInstructionScreen() {
 		75, 13 * ofGetHeight() / 15);
 	font_.drawString("14. Press button on right to display the data", 75,
 		14 * ofGetHeight() / 15);
+
+	// Drawing button
 	histogram_button_->draw();
 	histogram_button_->setPosition(585,
 		14 * ofGetHeight() / 15 - 15);
 
 }
 
+// Function that displays the histogram screen of the application
+// to the user
+//--------------------------------------------------------------
 void ofApp::drawHistograms() {
 	// Code derived from: ofxDatGui example
 	input_->draw();
@@ -385,6 +440,9 @@ void ofApp::drawHistograms() {
 	start_button_->setPosition(40, ofGetHeight() - 60);
 }
 
+// Function that displays the prediction screen of the application
+// to the user
+//--------------------------------------------------------------
 void ofApp::drawPredictions() {
 	ofSetColor(ofColor{ 255, 255, 255 });
 	title_font_.drawString("Track Prediction", ofGetWidth() / 2 - 375, ofGetHeight() / 10);
@@ -423,6 +481,8 @@ void ofApp::drawPredictions() {
 	font_.drawString(result_, 3 * ofGetWidth() / 4 - 100, 11 * ofGetHeight() / 12 + 30);
 }
 
+// Function that changes the histogram displayed, uses
+// the left and right arrow keys to navigate
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 	if (histogram_ && key == OF_KEY_RIGHT) {
@@ -442,6 +502,9 @@ void ofApp::keyPressed(int key){
 
 }
 
+// Function that updates the histogram displayed after
+// user navigation or search
+//--------------------------------------------------------------
 void ofApp::histogramUpdate() {
 	plot_.setTitleText(histogram_titles_[current_index_]);
 	plot_.setPoints(histogram_points_l_[current_index_]);
@@ -449,6 +512,10 @@ void ofApp::histogramUpdate() {
 	plot_.setXLim(lower_bounds_[current_index_], upper_bounds_[current_index_]);
 }
 
+// Function that updates the result message after user
+// requests features of a track to be classified into like 
+// or dislike
+//--------------------------------------------------------------
 void ofApp::resultUpdate(vector<double> means, vector<double> stds) {
 	vector<double> sample;
 	for (int i = 0; i < feature_sliders_.size(); i++) {
