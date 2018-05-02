@@ -521,7 +521,6 @@ void ofApp::resultUpdate(vector<double> means, vector<double> stds) {
 	for (int i = 0; i < feature_sliders_.size(); i++) {
 		// Push back standardized value
 		sample.push_back((feature_sliders_[i]->getValue() - means[i]) / stds[i]);
-		cout << sample[i] << endl;
 	}
 	int classification = predictor_.Classify(sample);
 	// First half of messages are positive results
