@@ -38,7 +38,6 @@
 *.vcxproj.filters
 *.vcxproj.user
 .vs/*
-bin/*
 obj/*
 packages/*
 packages.config

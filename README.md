@@ -1,6 +1,6 @@
 # Spotify Visualization
 ## Introduction
-These application is going to need data from your Spotify account. First, you'll
+This application is going to need data from your Spotify account. First, you'll
 need to authenticate it, so Postman can make requests to the API. Instructions
 are found in the app. You're going to need two playlists, one with songs you like, and
 another with songs you dislike. When you get the JSON data, put them in the
@@ -9,7 +9,7 @@ folder.
 
 ## Building
 This application uses [openFrameworks](http://openframeworks.cc/download/), and
-after cloning this repository, build it with their given project generator. You need to
+after cloning this repository, build it with the given project generator. You need to
 include these two addons:<br/>
 * [ofxGrafica](https://github.com/jagracar/ofxGrafica)
 * [ofxDatGui](https://github.com/braitsch/ofxDatGui)<br/>
@@ -23,7 +23,8 @@ python amalgamate.py
 ```
 
 ## Tweaks in Addons
-Theses files **must** be changed for the code to compile:
+Theses files **must** be changed for the code to compile:<br/>
+
 In *ofxDatGui*, make the following tweaks:<br/>
 * For `ofxDatGuiSlider.h` in the `addons\ofxDatGui\src\components` folder, add in the
 following piece of code:<br/>
@@ -39,20 +40,22 @@ following piece of code:<br/>
 `<br/>
 
 These files might need to be modified for Visual Studio to compile:<br/>
+
 In *ofxGrafica*, make the following tweaks:<br/>
 * For `ofxGLayer.cpp` in the `addons\ofxGrafica\src\` folder, change:<br/>
-*line 209:* `distSq < max(pow(pointSizes[i % pointSizes.size()], 2), 25.0)` to <br/>
-*line 209:* `distSq < pow(pointSizes[i % pointSizes.size()], 2) || distSq < 25.0`
+`line 209: distSq < max(pow(pointSizes[i % pointSizes.size()], 2), 25.0)` to <br/>
+`line 209: distSq < pow(pointSizes[i % pointSizes.size()], 2) || distSq < 25.0`
 * For `ofxGPlot.cpp` in the `addons\ofxGrafica\src\` folder, implement these changes:<br/>
+
 *Original*
 ```
-*line 310:* `lim = {0.1, 10};<br/>
-*line 365:* `lim = {0.1, 10};
+line 310: `lim = {0.1, 10};<br/>
+line 365: `lim = {0.1, 10};
 ```
 *Modified*
 ```
-*line 310:* `lim = {0.1f, 10};<br/>
-*line 365:* `lim = {0.1f, 10};
+line 310: `lim = {0.1f, 10};<br/>
+line 365: `lim = {0.1f, 10};
 ```
 
 ## Other Tools
@@ -75,7 +78,7 @@ make predictor_test
 ./predictor_test
 ```
 
-To remove the files created from running the tests, run:<br/>
+To remove the files created from building the tests, run:<br/>
 ```
 make clean
 ```
