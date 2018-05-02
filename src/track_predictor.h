@@ -11,7 +11,8 @@ using namespace std;
 
 class TrackPredictor {
 public:
-        TrackPredictor(int epoch_, int steps_);
+		TrackPredictor() {};
+		TrackPredictor(int epoch, int steps) : epoch_(epoch), steps_(steps) {}
         vector<vector<double>> RemoveTitles(vector<vector<pair<string, double>>> dataset);
         void SVMTrain(vector<vector<double>> dataset);
         int Classify(vector<double> sample);
@@ -24,6 +25,6 @@ public:
 private:
         vector<double> weights_a_;
         double bias_b_;
-        int epoch_;
-        int steps_;
+        int epoch_ = 200;
+        int steps_ = 100;
 };

@@ -2,11 +2,6 @@
 // For debugging
 #include <iostream>
 
-TrackPredictor::TrackPredictor(int epoch, int steps) {
-        epoch_ = epoch;
-        steps_ = steps;
-}
-
 vector<vector<double>> TrackPredictor::RemoveTitles(vector<vector<pair<string, double>>> dataset) {
         vector<vector<double>> new_dataset(dataset.size());
         for (unsigned int i = 0; i < dataset.size(); i++) {
@@ -24,7 +19,7 @@ void TrackPredictor::SVMTrain(vector<vector<double>> dataset) {
 
         // Start with 0 weights and 0
         bias_b_ = 0.0;
-        weights_a_.resize(dataset.size());
+        weights_a_.resize(dataset[0].size());
         fill(weights_a_.begin(), weights_a_.end(), 0);
 
         for (int i = 0; i < epoch_; i++) {

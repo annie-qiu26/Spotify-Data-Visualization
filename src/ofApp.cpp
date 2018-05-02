@@ -35,8 +35,8 @@ void ofApp::setup() {
 	combined_dataset.insert(combined_dataset.end(), disliked_dataset.begin(),
 		disliked_dataset.end());
 
-	vector<double> means = tracks_obj.CalculateMeans(combined_dataset);
-	vector<double> stds = tracks_obj.CalculateStds(combined_dataset);
+	means_ = tracks_obj.CalculateMeans(combined_dataset);
+	stds_ = tracks_obj.CalculateStds(combined_dataset);
 	vector<vector<pair<string, double>>> standardized_dataset
 		= tracks_obj.StandardizeFeatures(combined_dataset);
 
@@ -46,16 +46,23 @@ void ofApp::setup() {
 	int start_limit = 0;
 	int end_limit = 100;
 	histogram_points_l_ = calculateHistograms(standardized_dataset, start_limit, end_limit,
-		means, stds);
+		means_, stds_);
 	start_limit = 100;
 	end_limit = standardized_dataset.size();
 	histogram_points_d_ = calculateHistograms(standardized_dataset, start_limit, end_limit,
-		means, stds);
+		means_, stds_);
 
 
 	setupTitles(standardized_dataset);
-	setupBounds(means, stds);
+	setupSliders(means_, stds_);
+	setupBounds(means_, stds_);
 	setupHistograms();
+	setupResultMessages();
+
+	// Gets weights and bias of prediction for SVM classifier
+	vector<vector<double>> modified_dataset = 
+		predictor_.RemoveTitles(standardized_dataset);
+	predictor_.SVMTrain(modified_dataset);
 }
 
 void ofApp::setupColors() {
@@ -119,8 +126,24 @@ void ofApp::setupGUI() {
 	input_->onTextInputEvent(this, &ofApp::onTextInputEvent);
 	input_->setWidth(800, .2);
 	input_->setPosition(ofGetWidth() / 2 + 75, 875);
+	ofxDatGuiTextInputField* field = input_->getTextInput();
+	field->setTextInactiveColor(green_);
 	input_->setStripeColor(green_);
 
+	setupButtons();
+
+	parameters_.load("parameters.png");
+	globals_.load("globals.png");
+}
+
+void ofApp::setupTitles(vector<vector<pair<string, double>>> dataset) {
+	// just take the first sample for titles
+	for (int i = 0; i < dataset[0].size(); i++) {
+		histogram_titles_.push_back(dataset[0][i].first);
+	}
+}
+
+void ofApp::setupButtons() {
 	start_button_ = new ofxDatGuiButton("Back to Start");
 	start_button_->onButtonEvent(this, &ofApp::onButtonEvent);
 	start_button_->setWidth(125);
@@ -141,14 +164,26 @@ void ofApp::setupGUI() {
 	prediction_button_->setWidth(150);
 	prediction_button_->setStripeColor(green_);
 
-	parameters_.load("parameters.png");
-	globals_.load("globals.png");
+	get_prediction_button_ = new ofxDatGuiButton("Get Prediction");
+	get_prediction_button_->onButtonEvent(this, &ofApp::onButtonEvent);
+	get_prediction_button_->setWidth(100);
+	get_prediction_button_->setStripeColor(green_);
 }
 
-void ofApp::setupTitles(vector<vector<pair<string, double>>> dataset) {
-	// just take the first sample for titles
-	for (int i = 0; i < dataset[0].size(); i++) {
-		histogram_titles_.push_back(dataset[0][i].first);
+void ofApp::setupSliders(vector<double> means, vector<double> stds) {
+	for (int i = 0; i < means.size(); i++) {
+		ofxDatGuiSlider* slider = new ofxDatGuiSlider(histogram_titles_[i], 
+			means[i] - 5 * stds[i], means[i] + 5 * stds[i], means[i]);
+		cout << means[i] << endl;
+		cout << stds[i] << endl;
+		slider->setPrecision(4, false);
+		slider->setPosition(ofGetWidth() + 185, i * ofGetHeight() / 12 + 200);
+		slider->setStripeColor(green_);
+		slider->setSliderFillColor(green_);
+		slider->setTextInputColor(green_);
+		slider->setWidth(500, 150);
+		slider->onSliderEvent(this, &ofApp::onSliderEvent);
+		feature_sliders_.push_back(slider);
 	}
 }
 
@@ -157,6 +192,15 @@ void ofApp::setupBounds(vector<double> means, vector<double> stds) {
 		lower_bounds_.push_back(means[i] - 4 * stds[i]);
 		upper_bounds_.push_back(means[i] + 4 * stds[i]);
 	}
+}
+
+void ofApp::setupResultMessages() {
+	result_messages_.push_back("That's an awesome song!");
+	result_messages_.push_back("I'll listen to that if I were you");
+	result_messages_.push_back("You have great music taste");
+	result_messages_.push_back("Please save your ears");
+	result_messages_.push_back("I wouldn't listen to that if I were you");
+	result_messages_.push_back("I would mute that song");
 }
 
 vector<vector<ofxGPoint>> ofApp::calculateHistograms(vector<vector<pair<string, double>>> dataset,
@@ -196,7 +240,7 @@ void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e)
 		// http://thispointer.com/implementing-a-case-insensitive-stringfind-in-c/
 		string title = histogram_titles_[i];
 		transform(title.begin(), title.end(), title.begin(), ::tolower);
-		if (title.find(target) != string::npos) {
+		if (title.find(target) == 0 && title.length() == target.length()) {
 			current_index_ = i;
 			histogramUpdate();
 		}
@@ -230,6 +274,9 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e)
 		histogram_ = false;
 		prediction_ = true;
 	}
+	else if (target == "Get Prediction") {
+		resultUpdate(means_, stds_);
+	}
 }
 
 //--------------------------------------------------------------
@@ -239,6 +286,10 @@ void ofApp::update(){
 	instruction_button_->update();
 	histogram_button_->update();
 	prediction_button_->update();
+	get_prediction_button_->update();
+	for (ofxDatGuiSlider* feature : feature_sliders_) {
+		feature->update();
+	}
 }
 
 //--------------------------------------------------------------
@@ -336,30 +387,40 @@ void ofApp::drawHistograms() {
 
 void ofApp::drawPredictions() {
 	ofSetColor(ofColor{ 255, 255, 255 });
-	title_font_.drawString("Track Prediction", ofGetWidth() / 2 - 375, ofGetHeight() / 8);
+	title_font_.drawString("Track Prediction", ofGetWidth() / 2 - 375, ofGetHeight() / 10);
+
+	// Drawing Instructions
 	font_.drawString("1. In the same Postman collection before, find the search track request\nput the title of the song in the q parameter",
-		50, 2 * ofGetHeight() / 9);
+		50, 2 * ofGetHeight() / 10);
 	font_.drawString("2. Make sure you press \"Use Token\" for authentication", 50,
-		3 * ofGetHeight() / 9);
-	font_.drawString("3. Once you press send, you should receive a JSON body", 50, 4 * ofGetHeight() / 9);
+		3 * ofGetHeight() / 10);
+	font_.drawString("3. Once you press send, you should receive a JSON body", 50, 4 * ofGetHeight() / 10);
 	font_.drawString("4. Find the ID of the track you're looking for. It should be above \"is_local\", \nwhich is right above the song's name",
-		50, 5 * ofGetHeight() / 9);
+		50, 5 * ofGetHeight() / 10);
 	font_.drawString("5. In \"Globals\", paste in the track ID in the track_id parameter", 50,
-		6 * ofGetHeight() / 9);
+		6 * ofGetHeight() / 10);
 	font_.drawString("6. In \"Get Audio Track Features\", make sure to press \"Use Token\" for authentication",
-		50, 7 * ofGetHeight() / 9);
+		50, 7 * ofGetHeight() / 10);
 	font_.drawString("7. Press send, and you should receive a JSON body of the track features",
-		50, 8 * ofGetHeight() / 9);
+		50, 8 * ofGetHeight() / 10);
+	font_.drawString("8. Input feature values in sliders to the right, and press button for results",
+		50, 9 * ofGetHeight() / 10);
 
 	// Drawing Buttons
 	start_button_->draw();
 	start_button_->setPosition(50, 50);
 	histogram_button_->draw();
 	histogram_button_->setPosition(ofGetWidth() - 150, 50);
-}
+	get_prediction_button_->draw();
+	get_prediction_button_->setPosition(3 * ofGetWidth() / 4, 10 * ofGetHeight() / 12 + 30);
 
-void ofApp::drawFeatureInputs() {
+	// Drawing Sliders
+	for (ofxDatGuiSlider* feature : feature_sliders_) {
+		feature->draw();
+	}
 
+	// Drawing Results
+	font_.drawString(result_, 3 * ofGetWidth() / 4 - 100, 11 * ofGetHeight() / 12 + 30);
 }
 
 //--------------------------------------------------------------
@@ -378,10 +439,6 @@ void ofApp::keyPressed(int key){
 		}
 		histogramUpdate();
 	}
-	else if (key == 's' && instruction_) {
-		histogram_ = true;
-		instruction_ = false;
-	}
 
 }
 
@@ -392,52 +449,20 @@ void ofApp::histogramUpdate() {
 	plot_.setXLim(lower_bounds_[current_index_], upper_bounds_[current_index_]);
 }
 
-//--------------------------------------------------------------
-void ofApp::keyReleased(int key){
-
+void ofApp::resultUpdate(vector<double> means, vector<double> stds) {
+	vector<double> sample;
+	for (int i = 0; i < feature_sliders_.size(); i++) {
+		// Push back standardized value
+		sample.push_back((feature_sliders_[i]->getValue() - means[i]) / stds[i]);
+		cout << sample[i] << endl;
+	}
+	int classification = predictor_.Classify(sample);
+	// First half of messages are positive results
+	int index = rand() % (result_messages_.size() / 2);
+	if (classification == -1) {
+		index += result_messages_.size() / 2;
+	}
+	result_ = result_messages_[index];
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseMoved(int x, int y ){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseDragged(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mousePressed(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseReleased(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseEntered(int x, int y){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseExited(int x, int y){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::windowResized(int w, int h){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::gotMessage(ofMessage msg){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){
-
-}
