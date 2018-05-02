@@ -22,7 +22,8 @@ public:
 		double lambda);
         vector<double> MatrixScalarSubtraction(vector<double> a, vector<double> b,
 		double c, double d);
-        // Getter methods
+
+	// Getter methods
         double GetBias();
         vector<double> GetWeights();
 private:

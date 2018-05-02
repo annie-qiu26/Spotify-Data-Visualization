@@ -9,42 +9,42 @@
 class ofApp : public ofBaseApp{
 
 public:
-		void setup();
-		void update();
-		void draw();
+	void setup();
+	void update();
+	void draw();
 
-		// Navigation
-		void keyPressed(int key);
+	// Navigation
+	void keyPressed(int key);
 
-		// Setting up functions
-		void setupColors();
-		void setupHistograms();
-		void setupGUI();
-		void setupTitles(vector<vector<pair<string, double>>> dataset);
-		void setupBounds(vector<double> means, vector<double> stds);
-		void setupButtons();
-		void setupSliders(vector<double> means, vector<double> stds);
-		void setupResultMessages();
+	// Setting up functions
+	void setupColors();
+	void setupHistograms();
+	void setupGUI();
+	void setupTitles(vector<vector<pair<string, double>>> dataset);
+	void setupBounds(vector<double> means, vector<double> stds);
+	void setupButtons();
+	void setupSliders(vector<double> means, vector<double> stds);
+	void setupResultMessages();
 
-		// Function used for analyzing data
-		vector<vector<pair<string, double>>> standardizeDataset();
-		vector<vector<ofxGPoint>> calculateHistograms(vector<vector<pair<string, double>>> dataset,
-			int start_limit, int end_limit, vector<double> means, vector<double> stds);
+	// Function used for analyzing data
+	vector<vector<pair<string, double>>> standardizeDataset();
+	vector<vector<ofxGPoint>> calculateHistograms(vector<vector<pair<string, double>>> dataset,
+		int start_limit, int end_limit, vector<double> means, vector<double> stds);
 
-	        // Update functions that change information on screen
-		void histogramUpdate();
-		void resultUpdate(vector<double> means, vector<double> stds);
+	// Update functions that change information on screen
+	void histogramUpdate();
+	void resultUpdate(vector<double> means, vector<double> stds);
 
-		// GUI Functions
-		void onButtonEvent(ofxDatGuiButtonEvent e);
-		void onTextInputEvent(ofxDatGuiTextInputEvent e);
-		void onSliderEvent(ofxDatGuiSliderEvent e) {}; 		// Empty function to prevent warnings
+	// GUI Functions
+	void onButtonEvent(ofxDatGuiButtonEvent e);
+	void onTextInputEvent(ofxDatGuiTextInputEvent e);
+	void onSliderEvent(ofxDatGuiSliderEvent e) {}; 		// Empty function to prevent warnings
 
-		// Drawing functions
-		void drawStart();
-		void drawInstruction();
-		void drawHistograms();
-		void drawPredictions();
+	// Drawing functions
+	void drawStart();
+	void drawInstruction();
+	void drawHistograms();
+	void drawPredictions();
 private:
 	// Spotify themed colors
 	ofColor black_;

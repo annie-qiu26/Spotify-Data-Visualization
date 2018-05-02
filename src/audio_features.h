@@ -13,6 +13,7 @@ public:
 	void ParseToFeatures(Json::Value& audio);
 	vector <pair<string, double>> GetFeatures();
 private:
+	// Features Spotify gives for each track
 	double danceability;
 	double energy;
 	double loudness;
