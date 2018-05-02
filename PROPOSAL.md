@@ -1,10 +1,10 @@
 # Project Proposal
 ## General Summary
-I'm planning to use Spotify's API to find data on top tracks played based on user. 
+I'm planning to use Spotify's API to find data on top tracks played based on user.
 I also want users to give me a playlist of songs they don't like, so
-I can compare the different styles of songs they liked. Given this data, 
+I can compare the different styles of songs they prefer. Given this data, 
 I want to use openFrameworks to display the data in a visually appeasing way. Users can search for playlists
-and the application will summarize the type of music and the audio feautres of 
+and the application will summarize the type of music and the audio feautres of
 their songs. Then I want to artistically express the data with an interactive feature
 for users. They can analyze their data and then input another set of audio features
 of an unknown track, and my application will predict whether they'll like the song
@@ -43,4 +43,3 @@ music preferences, so I showed them the differences between their liked songs' f
 disliked songs' features in histograms. I also decided to add in a prediction feature, which takes
 in their playlists' data and figure out whether the user will like a song or not based on the
 given features.
-
