@@ -21,6 +21,7 @@ folder:<br/>
 ```
 python amalgamate.py
 ```
+Make sure to include the `jsoncpp/` directory in the build.
 
 ## Tweaks in Addons
 Theses files **must** be changed for the code to compile:<br/>
@@ -28,16 +29,18 @@ Theses files **must** be changed for the code to compile:<br/>
 In *ofxDatGui*, make the following tweaks:<br/>
 * For `ofxDatGuiSlider.h` in the `addons\ofxDatGui\src\components` folder, add in the
 following piece of code:<br/>
-`void setSliderFillColor(const ofColor color) {
+```
+void setSliderFillColor(const ofColor color) {
 	mSliderFill = color;
 }
-`<br/>
+```
 * For `ofxDatGuiTextInput.h` in the `addons\ofxDatGui\src\components` folder, add in the
 following piece of code:<br/>
-`ofxDatGuiTextInputField* getTextInput() {
+```
+ofxDatGuiTextInputField* getTextInput() {
 	return &mInput;
 }
-`<br/>
+```
 
 These files might need to be modified for Visual Studio to compile:<br/>
 
@@ -49,12 +52,12 @@ In *ofxGrafica*, make the following tweaks:<br/>
 
 *Original*
 ```
-line 310: `lim = {0.1, 10};<br/>
+line 310: `lim = {0.1, 10};
 line 365: `lim = {0.1, 10};
 ```
 *Modified*
 ```
-line 310: `lim = {0.1f, 10};<br/>
+line 310: `lim = {0.1f, 10};
 line 365: `lim = {0.1f, 10};
 ```
 
